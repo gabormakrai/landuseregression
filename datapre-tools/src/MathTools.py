@@ -7,7 +7,7 @@ def degreeToRadian(degree):
     return degree * math.pi / 180.0 
 
 def radianToDegree(radian):
-    return radian / 180.0 * math.pi
+    return radian * 180.0 / math.pi
 
 def bound(val, valMin, valMax):
     res = max(val, valMin)
