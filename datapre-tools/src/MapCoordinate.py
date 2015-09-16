@@ -15,7 +15,7 @@ class MapCoordinate:
     def toString(self):
         return "MapCoordinate(x:" + str(self.x) + ",y:" + str(self.y) + ")"
 
-    def toWGS84Coorinate(self):
+    def toWGS84Coordinate(self):
         from WGS84Coordinate import WGS84Coordinate
         lng = (self.x / 2.0 - MathTools.ORIGIN_X) / MathTools.PIXELS_PER_LONGITUDE_DEGREE
         latRadians = (self.y / 2.0 - MathTools.ORIGIN_Y) / - MathTools.PIXELS_PER_LONGITUDE_RADIAN
@@ -30,4 +30,4 @@ class MapCoordinate:
         return ZoomMapCoordinate(self.x, self.y, 1)
     
     def distance(self, otherCoordinate):
-        return self.toWGS84Coorinate().distance(otherCoordinate)
+        return self.toWGS84Coordinate().distance(otherCoordinate)
