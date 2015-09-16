@@ -11,3 +11,12 @@ print("c3: " + c3.toString())
 
 c4 = c3.toMapCoordinate()
 print("c4: " + c4.toString())
+
+c5 = c1.toWGS84Coordinate()
+print("c5: " + c5.toString())
+
+c6 = c2.toWGS84Coordinate()
+print("c6: " + c6.toString())
+
+
+

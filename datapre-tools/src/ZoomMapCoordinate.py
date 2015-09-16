@@ -1,6 +1,4 @@
-from MapCoordinate import MapCoordinate
 from MathTools import MathTools, radianToDegree
-from WGS84Coordinate import WGS84Coordinate
 import math
 
 class InvalidCoordinateDataException(Exception):
@@ -30,11 +28,13 @@ class ZoomMapCoordinate:
         self.zoom = zoom
 
     def toMapCoordinate(self):
+        from MapCoordinate import MapCoordinate
         tileNumber = 1 << (self.zoom - 1)
         return MapCoordinate(self.x / tileNumber, self.y / tileNumber)
     
-    def toWGS84Coorindate(self):
-        tileNumber = 1 << (self.zoom - 1)
+    def toWGS84Coordinate(self):
+        from WGS84Coordinate import WGS84Coordinate
+        tileNumber = 1 << (self.zoom)
         lng = (self.x / (tileNumber) - MathTools.ORIGIN_X) / MathTools.PIXELS_PER_LONGITUDE_DEGREE
         latRadians = (self.y / (tileNumber) - MathTools.ORIGIN_Y) / - MathTools.PIXELS_PER_LONGITUDE_RADIAN
         lat = radianToDegree(2.0 * math.atan(math.exp(latRadians)) - math.pi / 2.0);
@@ -45,3 +45,7 @@ class ZoomMapCoordinate:
 
     def toString(self):
         return "ZoomMapCoordinate(x:" + str(self.x) + ",y:" + str(self.y) + ",zoom:" + str(self.zoom) + ")"
+    
+    def distance(self, otherCoordinate):
+        return self.toWGS84Coorindate().distance(otherCoordinate)
+
