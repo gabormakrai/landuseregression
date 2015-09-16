@@ -17,7 +17,8 @@ class WGS84Coordinate:
         return "WGS84Coordinate(latitude:" + str(self.latitude) + ",longitude:" + str(self.longitude) + ")"
 
     def distance(self, otherCoordinate):
-        return vincenty((self.latitude, self.longitude), (otherCoordinate.latitude, otherCoordinate.longitude)).meters
+        otherWgs = otherCoordinate.toWGS84Coordinate()
+        return vincenty((self.latitude, self.longitude), (otherWgs.latitude, otherWgs.longitude)).meters
     
     def toZoomMapCoordinate(self):
         from ZoomMapCoordinate import ZoomMapCoordinate
