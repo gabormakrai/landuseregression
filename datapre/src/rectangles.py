@@ -20,7 +20,7 @@ class Station:
     def toString(self):
         return "Station(id:" + str(self.ID) + ",name:" + str(self.name) + ",lat:" + str(self.latitude) + "lng:" + str(self.longitude) + ")"
 
-rectangleSize = 50.0
+rectangleSize = 100.0
 
 inputFile = DATA_DIRECTORY + "stations/stations.csv"
 outputFile = DATA_DIRECTORY + "stations/stations_rectangles.csv"
@@ -47,20 +47,25 @@ with open(inputFile) as infile:
 # function that calculates the buffer rectangle corners
 def addCorners(station):
     coordinate = WGS84Coordinate(station.latitude, station.longitude)
-    delta = 0.0001
+    delta = 0.001
     mapCoordinate = coordinate.toMapCoordinate()
     #print("mC: " + mapCoordinate.toString())
     mapCoordinateX = MapCoordinate(mapCoordinate.x + delta, mapCoordinate.y)
     mapCoordinateY = MapCoordinate(mapCoordinate.x, delta + mapCoordinate.y)
     distanceX = mapCoordinate.distance(mapCoordinateX)
     distanceY = mapCoordinate.distance(mapCoordinateY)
-    deltaX = delta / distanceX * rectangleSize / 2.0
-    deltaY = delta / distanceY * rectangleSize / 2.0
-    #print("dX: " + str(deltaX) + ", dY: " + str(deltaY))
+    #print("distanceX: " + str(distanceX) + ", distanceY: " + str(distanceY))
+    deltaX = delta / distanceX * (rectangleSize / 2.0)
+    deltaY = delta / distanceY * (rectangleSize / 2.0)
+    #print("dX: " + str(deltaX) + ", dY: " + str(deltaY))    
     station.northWestCorner = MapCoordinate(mapCoordinate.x - deltaX, mapCoordinate.y - deltaY).toWGS84Coordinate()
     station.northEastCorner = MapCoordinate(mapCoordinate.x + deltaX, mapCoordinate.y - deltaY).toWGS84Coordinate()
     station.southWestCorner = MapCoordinate(mapCoordinate.x - deltaX, mapCoordinate.y + deltaY).toWGS84Coordinate()
     station.southEastCorner = MapCoordinate(mapCoordinate.x + deltaX, mapCoordinate.y + deltaY).toWGS84Coordinate()
+    #print("distance(nw,ne): " + str(station.northEastCorner.distance(station.northWestCorner)))
+    #print("distance(coordinate,sw): " + str(coordinate.distance(station.southWestCorner)))
+    #print("distance(coordinate,ne): " + str(coordinate.distance(station.northEastCorner)))
+    #print("distance(coordinate,se): " + str(coordinate.distance(station.southEastCorner)))
 
 # add buffer rectangles to all stations
 for station in stations:
