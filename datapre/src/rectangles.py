@@ -74,7 +74,7 @@ for station in stations:
 
 # create output file
 output = open(outputFile, 'w')
-output.write("id,nw_latitude,nw_longitude,ne_latitude,ne_longitude,sw_latitude,sw_longitude,se_latitude,se_longitude\n")
+output.write("id,nw_latitude,nw_longitude,ne_latitude,ne_longitude,se_latitude,se_longitude,sw_latitude,sw_longitude\n")
 
 for station in stations:
     output.write(str(station.ID) + ",")
@@ -82,10 +82,10 @@ for station in stations:
     output.write(str(station.northWestCorner.longitude) + ",")
     output.write(str(station.northEastCorner.latitude) + ",")
     output.write(str(station.northEastCorner.longitude) + ",")
-    output.write(str(station.southWestCorner.latitude) + ",")
-    output.write(str(station.southWestCorner.longitude) + ",")
     output.write(str(station.southEastCorner.latitude) + ",")
-    output.write(str(station.southEastCorner.longitude) + "\n")
+    output.write(str(station.southEastCorner.longitude) + ",")
+    output.write(str(station.southWestCorner.latitude) + ",")
+    output.write(str(station.southWestCorner.longitude) + "\n")
     
 output.close()
 
