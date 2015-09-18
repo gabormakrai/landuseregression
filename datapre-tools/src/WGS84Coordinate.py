@@ -1,4 +1,4 @@
-from geopy.distance import vincenty
+#from geopy.distance import vincenty
 from MathTools import MathTools, bound, degreeToRadian
 import math
 
