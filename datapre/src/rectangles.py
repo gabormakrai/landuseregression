@@ -6,6 +6,14 @@ whole areas)
 from MapCoordinate import MapCoordinate
 from WGS84Coordinate import WGS84Coordinate
 
+class Rectangle:
+    def __init__(self, ID, conerNW, cornerNE, cornerSE, cornerSW):
+        self.ID = ID
+        self.cornerNW = conerNW
+        self.cornerNE = cornerNE
+        self.cornerSE = cornerSE
+        self.cornerSW = cornerSW
+
 class Station:
     def __init__(self, ID, name, latitude, longitude):
         self.ID = ID
@@ -78,26 +86,8 @@ def createStationRectangles(rectangleSize, stationFile, outputFile, outputGISFil
         addCorners(station)
     
     print(printPrefixString + "Done...")
-    print(printPrefixString + "Saving out data to " + outputFile + "...")
     
-    # create output file
-    output = open(outputFile, 'w')
-    output.write("id,nw_latitude,nw_longitude,ne_latitude,ne_longitude,se_latitude,se_longitude,sw_latitude,sw_longitude\n")
-    
-    for station in stations:
-        output.write(str(station.ID) + ",")
-        output.write(str(station.northWestCorner.latitude) + ",")
-        output.write(str(station.northWestCorner.longitude) + ",")
-        output.write(str(station.northEastCorner.latitude) + ",")
-        output.write(str(station.northEastCorner.longitude) + ",")
-        output.write(str(station.southEastCorner.latitude) + ",")
-        output.write(str(station.southEastCorner.longitude) + ",")
-        output.write(str(station.southWestCorner.latitude) + ",")
-        output.write(str(station.southWestCorner.longitude) + "\n")
-        
-    output.close()
-    
-    print(printPrefixString + "Done")
+    saveRectangles(stations, outputFile, printPrefixString)
     
     # create gis outputfile
     print(printPrefixString + "Saving down GIS information to " + outputGISFile + "...")
@@ -121,4 +111,54 @@ def createStationRectangles(rectangleSize, stationFile, outputFile, outputGISFil
         output.write(str(station.northWestCorner.latitude) + "))\n")
     output.close()
     
+    print(printPrefixString + "Done...")
+
+def saveRectangles(stations, outputFile, printPrefixString = ""):
+    print(printPrefixString + "Saving rectangles to " + outputFile + "...")
+    
+    # create output file
+    output = open(outputFile, 'w')
+    output.write("id,nw_latitude,nw_longitude,ne_latitude,ne_longitude,se_latitude,se_longitude,sw_latitude,sw_longitude\n")
+    
+    for station in stations:
+        output.write(str(station.ID) + ",")
+        output.write(str(station.northWestCorner.latitude) + ",")
+        output.write(str(station.northWestCorner.longitude) + ",")
+        output.write(str(station.northEastCorner.latitude) + ",")
+        output.write(str(station.northEastCorner.longitude) + ",")
+        output.write(str(station.southEastCorner.latitude) + ",")
+        output.write(str(station.southEastCorner.longitude) + ",")
+        output.write(str(station.southWestCorner.latitude) + ",")
+        output.write(str(station.southWestCorner.longitude) + "\n")
+        
+    output.close()
+    
+    print(printPrefixString + "Done...")
+
+
+def loadRectangles(rectangles, inputRectangleFile, printPrefixString = ""):
+    print(printPrefixString + "Loading " + inputRectangleFile + " rectangle file...")
+    
+    firstLine = True
+    # open the file
+    with open(inputRectangleFile) as infile:
+        # read line by line
+        for line in infile:
+            # skip the first line (header line)
+            if firstLine == True:
+                firstLine = False
+                continue
+            # remove newline character from the end
+            line = line.rstrip()
+            # split the line
+            splittedLine = line.split(',')
+            #id,nw_latitude,nw_longitude,ne_latitude,ne_longitude,se_latitude,se_longitude,sw_latitude,sw_longitude
+            northWestCoordinate = WGS84Coordinate(float(splittedLine[1]), float(splittedLine[2])).toMapCoordinate()
+            northEastCoordinate = WGS84Coordinate(float(splittedLine[3]), float(splittedLine[4])).toMapCoordinate()
+            southEastCoordinate = WGS84Coordinate(float(splittedLine[5]), float(splittedLine[6])).toMapCoordinate()
+            southWestCoordinate = WGS84Coordinate(float(splittedLine[7]), float(splittedLine[8])).toMapCoordinate()
+            rectangle = Rectangle(splittedLine[0], northWestCoordinate, northEastCoordinate, southEastCoordinate, southWestCoordinate)
+            rectangles.append(rectangle)
+    
+    print(printPrefixString + "#rectangles: " + str(len(rectangles)))
     print(printPrefixString + "Done...")
