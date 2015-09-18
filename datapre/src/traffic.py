@@ -2,8 +2,6 @@
 This files contains functions to process traffic data.
 """
 
-from rectangles import loadRectangles
-
 class RoadData:
     def __init__(self, ID, longitude1, latitude1, longitude2, latitude2, speedLimit, laneNumber, oneWay, amCar, amLgv, amHgv, ipCar, ipLgv, ipHgv, pmCar, pmLgv, pmHgv):
         self.ID = ID
@@ -36,12 +34,7 @@ def createTrafficGISFile(inputRectangleFile, inputTrafficFile, outputGISFile, pr
     
     # load the data
     loadTraffic(roadDataArray, inputTrafficFile, printPrefixString)
-    
-    rectangles = []
-    
-    # load rectangles
-    loadRectangles(rectangles, inputRectangleFile, printPrefixString)
-    
+        
     print(printPrefixString + "write all traffic information to " + outputGISFile + "...")
     # write out gis File
     output = open(outputGISFile, 'w')
