@@ -10,15 +10,26 @@ return: None if there is no intersection
         otherwise a Vector contains the intersection point  
 """        
 def linelineIntersection(a, b, c, d):
-    ca = Vector(c.x - a.x, c.y - a.y)
-    ab = Vector(b.x - a.x, b.y - a.y)
-    cd = Vector(d.x - c.x, d.y - c.y)
+    if a is Vector:
+        vectorA = a
+        vectorB = b
+        vectorC = c
+        vectorD = d
+    else:
+        vectorA = Vector(a.x, a.y)
+        vectorB = Vector(b.x, b.y)
+        vectorC = Vector(c.x, c.y)
+        vectorD = Vector(d.x, d.y)
+        
+    ca = Vector(vectorC.x - vectorA.x, vectorC.y - vectorA.y)
+    ab = Vector(vectorB.x - vectorA.x, vectorB.y - vectorA.y)
+    cd = Vector(vectorD.x - vectorC.x, vectorD.y - vectorC.y)
     caXcd = ca.crossProduct(cd)
     abXcd = ab.crossProduct(cd)
     if abs(abXcd) - 0.00000000001 < 0:
         return None 
     t = caXcd / abXcd
     if t > 0 and t < 1:
-        return Vector(a.x + t * ab.x, a.y + t * ab.y)
+        return Vector(vectorA.x + t * ab.x, vectorA.y + t * ab.y)
     else:
         return None
