@@ -7,9 +7,9 @@ from MapCoordinate import MapCoordinate
 from WGS84Coordinate import WGS84Coordinate
 
 class Rectangle:
-    def __init__(self, ID, conerNW, cornerNE, cornerSE, cornerSW):
+    def __init__(self, ID, cornerNW, cornerNE, cornerSE, cornerSW):
         self.ID = ID
-        self.cornerNW = conerNW
+        self.cornerNW = cornerNW
         self.cornerNE = cornerNE
         self.cornerSE = cornerSE
         self.cornerSW = cornerSW
