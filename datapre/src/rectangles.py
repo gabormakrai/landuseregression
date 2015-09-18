@@ -22,9 +22,11 @@ The input file should contains a header line and the following columns in order:
 id,name,latitude,longitude
 """
 
-def createStationRectangles(rectangleSize, stationFile, outputFile, outputGISFile):
+def createStationRectangles(rectangleSize, stationFile, outputFile, outputGISFile, printPrefixString = ""):
 
     stations = []
+    
+    print(printPrefixString + "Loading " + stationFile + " station file...")
     
     firstLine = True
     # open the file
@@ -41,6 +43,11 @@ def createStationRectangles(rectangleSize, stationFile, outputFile, outputGISFil
             splittedLine = line.split(',')
             station = Station(splittedLine[0], splittedLine[1], splittedLine[2], splittedLine[3])
             stations.append(station)
+            
+    print(printPrefixString + "#stations: " + str(len(stations)))
+    print(printPrefixString + "Done...")
+    
+    print(printPrefixString + "Do the corner calculation...")
     
     # function that calculates the buffer rectangle corners
     def addCorners(station):
@@ -70,6 +77,9 @@ def createStationRectangles(rectangleSize, stationFile, outputFile, outputGISFil
         #print(station.toString())
         addCorners(station)
     
+    print(printPrefixString + "Done...")
+    print(printPrefixString + "Saving out data to " + outputFile + "...")
+    
     # create output file
     output = open(outputFile, 'w')
     output.write("id,nw_latitude,nw_longitude,ne_latitude,ne_longitude,se_latitude,se_longitude,sw_latitude,sw_longitude\n")
@@ -87,7 +97,10 @@ def createStationRectangles(rectangleSize, stationFile, outputFile, outputGISFil
         
     output.close()
     
+    print(printPrefixString + "Done")
+    
     # create gis outputfile
+    print(printPrefixString + "Saving down GIS information to " + outputGISFile + "...")
     
     output = open(outputGISFile, 'w')
     output.write("id;name;polygon\n")
@@ -107,3 +120,5 @@ def createStationRectangles(rectangleSize, stationFile, outputFile, outputGISFil
         output.write(str(station.northWestCorner.longitude) + " ")
         output.write(str(station.northWestCorner.latitude) + "))\n")
     output.close()
+    
+    print(printPrefixString + "Done...")
