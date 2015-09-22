@@ -4,9 +4,10 @@ Main data preparation file
 from rectangles import createStationRectangles
 from traffic import createTrafficGISFile, createRectangleTraffic
 from osmbuildings import getBuildingsFromOSM
+from topobuildings import generateAllBuildingGisInformation,\
+    generateRectangleBuildings
 
 DATA_DIRECTORY = "f:\\transfer\\data\\"
-
 
 print("Create rectangles for monitoring stations...")
 
@@ -47,4 +48,24 @@ getBuildingsFromOSM(
     DATA_DIRECTORY + "gis/osm_buildings.csv",
     "\t")
 
+print("Done...")
+
+print("Processing OS Mastermap Topo layer for buildings...")
+
+generateAllBuildingGisInformation(
+    DATA_DIRECTORY + "topo/york_buildings_lur.csv",
+    DATA_DIRECTORY + "gis/topo_buildings.csv",
+    "\t")
+
+print("Done...")
+
+print("Processing OS Mastermap Topo layer for buildings for rectangles...")
+
+generateRectangleBuildings(
+    DATA_DIRECTORY + "topo/york_buildings_lur.csv",
+    DATA_DIRECTORY + "stations/stations_rectangles.csv",
+    DATA_DIRECTORY + "gis/station_buildings.csv",
+    DATA_DIRECTORY + "topo/station_buildings.csv",
+    "\t")
+            
 print("Done...")
