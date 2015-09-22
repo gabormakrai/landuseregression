@@ -3,8 +3,10 @@ Main data preparation file
 """
 from rectangles import createStationRectangles
 from traffic import createTrafficGISFile, createRectangleTraffic
+from osmbuildings import getBuildingsFromOSM
 
 DATA_DIRECTORY = "f:\\transfer\\data\\"
+
 
 print("Create rectangles for monitoring stations...")
 
@@ -37,5 +39,12 @@ createRectangleTraffic(
     "\t")
 
 print("Done...")
+    
+print("Processing raw osm data for buildings...")
 
+getBuildingsFromOSM(
+    DATA_DIRECTORY + "osm/downloaded/",
+    DATA_DIRECTORY + "gis/osm_buildings.csv",
+    "\t")
 
+print("Done...")
