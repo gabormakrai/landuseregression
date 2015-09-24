@@ -43,3 +43,12 @@ class Timestamp:
     def __str__(self):
         return self.toString()
 
+def generateTimestamps(year):
+    timestamps = []
+    for month in range(1, 13):
+        for day in range(1, DAYS_OF_MONTH[month - 1] + 1):
+            for hour in range(0, 24):
+                t = Timestamp().createBasedOnOther(year, month, day, hour)
+                timestamps.append(t)
+    return timestamps
+

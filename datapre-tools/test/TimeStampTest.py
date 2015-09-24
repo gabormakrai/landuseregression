@@ -1,4 +1,4 @@
-from Timestamp import Timestamp
+from Timestamp import Timestamp, generateTimestamps
 
 t1 = Timestamp().createBasedOnKey("2015101523")
 print("t1: " + str(t1))
@@ -12,3 +12,6 @@ print("t3: " + str(t3))
 print("t2 == t3: " + str(t2 == t3))
 
 print("t1 == t3: " + str(t1 == t3))
+
+timestamps = generateTimestamps(2013)
+print(str(len(timestamps)))
