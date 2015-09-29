@@ -26,15 +26,24 @@ def generateAllBuildingGisInformation(inputFile, outputGisFile, printPrefixStrin
     for building in buildings:
         output.write(building.osref + ";")
         output.write("POLYGON((")
-        firstCoordinate = True
+        
+        coordinateStrings = []
         for coordinate in building.coordinates:
-            if firstCoordinate == False:
-                output.write(",")
-            output.write(str(coordinate.longitude) + " ")
-            output.write(str(coordinate.latitude))
+            cString = str(coordinate.longitude) + " " + str(coordinate.latitude)
+            coordinateStrings.append(cString)
+        if coordinateStrings[0] != coordinateStrings[len(coordinateStrings) - 1]:
+            coordinateStrings.append(coordinateStrings[0])
+        
+        firstCoordinate = True
+        
+        for coordinateString in coordinateStrings:
             if firstCoordinate == True:
                 firstCoordinate = False
+            else:
+                output.write(", ")
+            output.write(coordinateString)
         output.write("))\n")
+
     output.close()
     
     print(printPrefixString + "Done...")
