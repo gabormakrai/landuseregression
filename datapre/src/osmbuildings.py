@@ -68,16 +68,21 @@ def saveAllBuldingsGis(buildings, fileName, printPrefixString = ""):
         output.write(str(building.ID) + ";")
         output.write(building.category + ";")
         output.write("POLYGON((")
-        firstCoordinate = True
+        
+        coordinateStrings = []
         for coordinate in building.coordinates:
-            output.write(str(coordinate.longitude) + " ")
-            output.write(str(coordinate.latitude))
+            cString = str(coordinate.longitude) + " " + str(coordinate.latitude)
+            coordinateStrings.append(cString)
+        if coordinateStrings[0] != coordinateStrings[len(coordinateStrings) - 1]:
+            coordinateStrings.append(coordinateStrings[0])
+        
+        firstCoordinate = True
+        
+        for coordinateString in coordinateStrings:
             if firstCoordinate == True:
-                output.write(", ")
                 firstCoordinate = False
-                continue
-            if coordinate == building.coordinates[len(building.coordinates) - 1]:
-                output.write("))\n")
             else:
                 output.write(", ")
+            output.write(coordinateString)
+        output.write("))\n")
     output.close()
