@@ -112,11 +112,23 @@ def generateRectangleBuildings(inputBuildingFile, inputRectangleFile, outputGisF
     for rectangle in rectangles:
         rectangleBuilding = []
         for building in buildings:
+            for coordinate in building.coordinates:
+                mapC = coordinate.toMapCoordinate()
+                a = pointInTriangle(rectangle.cornerNW, rectangle.cornerNE, rectangle.cornerSE, mapC)
+                if a == True:
+                    rectangleBuilding.append(building)
+                    break
+                b = pointInTriangle(rectangle.cornerNW, rectangle.cornerSE, rectangle.cornerSW, mapC)
+                if b == True:
+                    rectangleBuilding.append(building)
+                    break
+                
+                """            
             a = pointInTriangle(rectangle.cornerNW, rectangle.cornerNE, rectangle.cornerSE, building.cc)
             b = pointInTriangle(rectangle.cornerNW, rectangle.cornerSE, rectangle.cornerSW, building.cc)
             if a == True or b == True:
                 rectangleBuilding.append(building)
-        
+                """        
         rectangle.buildings = rectangleBuilding
         
     rectangleBuildings = []
