@@ -6,6 +6,7 @@ from traffic import createTrafficGISFile, createRectangleTraffic
 from osmbuildings import getBuildingsFromOSM
 from topobuildings import generateAllBuildingGisInformation,\
     generateRectangleBuildings
+from osmlanduse import getLandusesFromOSM
 
 DATA_DIRECTORY = "f:\\transfer\\data\\"
 
@@ -40,7 +41,7 @@ createRectangleTraffic(
     "\t")
 
 print("Done...")
-    
+   
 print("Processing raw osm data for buildings...")
 
 getBuildingsFromOSM(
@@ -68,4 +69,13 @@ generateRectangleBuildings(
     DATA_DIRECTORY + "topo/station_buildings.csv",
     "\t")
             
+print("Done...")
+
+print("Processing raw osm data for landuses...")
+
+getLandusesFromOSM(
+    DATA_DIRECTORY + "osm/downloaded/",
+    DATA_DIRECTORY + "gis/osm_landuse.csv",
+    "\t")
+
 print("Done...")
