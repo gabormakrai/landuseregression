@@ -80,7 +80,7 @@ def loadBuildings(inputFile, buildings, printPrefixString = ""):
     print(printPrefixString + "#buildings: " + str(len(buildings)))
     print(printPrefixString + "Done...")
     
-def generateRectangleBuildings(inputBuildingFile, inputRectangleFile, outputGisFile, outputFile, printPrefixString = ""):    
+def generateRectangleBuildings(inputBuildingFile, inputRectangleFile, outputGisFile, outputGISTriangleFile, outputFile, printPrefixString = ""):    
     # load buildings
     buildings = []
     loadBuildings(inputBuildingFile, buildings, printPrefixString)
@@ -138,8 +138,6 @@ def generateRectangleBuildings(inputBuildingFile, inputRectangleFile, outputGisF
             
     # create gis file
     print(printPrefixString + "Writing out gis data to " + outputGisFile)
-    
-    # create output file
     output = open(outputGisFile, 'w')
     output.write("osref;polygon\n")
     
@@ -157,3 +155,29 @@ def generateRectangleBuildings(inputBuildingFile, inputRectangleFile, outputGisF
         output.write("))\n")
     output.close()
     
+    # create triangle gis file
+    print(printPrefixString + "Writing out triangle gis data to " + outputGISTriangleFile)
+    output = open(outputGISTriangleFile, 'w')
+    triangleId = 0
+    output.write("id;polygon\n")
+    
+    for building in rectangleBuildings:
+        for i in range(0, len(building.coordinates) - 2):
+            v1 = building.coordinates[0].toWGS84Coordinate()
+            v2 = building.coordinates[i + 1].toWGS84Coordinate()
+            v3 = building.coordinates[i + 2].toWGS84Coordinate()
+            triangleId = triangleId + 1
+            output.write(str(triangleId) + ";")
+            output.write("POLYGON((")
+            output.write(str(v1.longitude) + " ")
+            output.write(str(v1.latitude) + ",")
+            output.write(str(v2.longitude) + " ")
+            output.write(str(v2.latitude) + ",")
+            output.write(str(v3.longitude) + " ")
+            output.write(str(v3.latitude) + ",")
+            output.write(str(v1.longitude) + " ")
+            output.write(str(v1.latitude))
+            output.write("))\n")
+    output.close()
+
+
