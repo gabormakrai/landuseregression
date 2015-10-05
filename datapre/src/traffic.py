@@ -6,6 +6,7 @@ from rectangles import loadRectangles
 from Geometry import linelineIntersection, pointInTriangle
 from WGS84Coordinate import WGS84Coordinate
 from MapCoordinate import MapCoordinate
+from Timestamp import generateTimestamps
 
 class RoadData:
     def __init__(self, ID, longitude1, latitude1, longitude2, latitude2, speedLimit, laneNumber, oneWay, amCar, amLgv, amHgv, ipCar, ipLgv, ipHgv, pmCar, pmLgv, pmHgv):
@@ -117,7 +118,7 @@ def createRectangleTraffic(inputTrafficFile, inputRectangleFile, outputFile, out
         
     #calculateRelatedRoadData(rectangles[2], roadDataArray)
     for rectangle in rectangles:
-        print("stationId:" + str(rectangle.ID))
+        print(printPrefixString + "\tstationId:" + str(rectangle.ID))
         calculateRelatedRoadData(rectangle, roadDataArray)
     
     print(printPrefixString + "Done...")
@@ -163,6 +164,8 @@ def createRectangleTraffic(inputTrafficFile, inputRectangleFile, outputFile, out
     output.close()
     
     print(printPrefixString + "Done...")
+    
+    createTrafficRelatedData(rectangles, outputFile, printPrefixString)
 
 """
 Function that finds all the roadData for a rectangle
@@ -236,3 +239,73 @@ def calculateRelatedRoadData(rectangle, roadDataArray):
     
     rectangle.roadDatas = rectangleRoadData
     
+def createTrafficRelatedData(rectangles, outputFile, printPrefixString = ""):
+    print(printPrefixString + "Write out traffic related data to " + outputFile + "...")
+
+    # generate all timestamps    
+    timestamps = generateTimestamps(2013)
+    
+    # write out gis File
+    output = open(outputFile, 'w')
+    
+    #header
+    output.write("location,timestamp,traffic_length_car,traffic_length_lgv,traffic_length_hgv,lane_length,length\n")
+    
+    for rectangle in rectangles:
+        lane_length = 0
+        length = 0
+        
+        for roadData in rectangle.roadDatas:
+            c1 = MapCoordinate(roadData.c1.x, roadData.c1.y)
+            c2 = MapCoordinate(roadData.c2.x, roadData.c2.y)
+            roadLength = c1.toWGS84Coordinate().distance(c2)
+            length = length + roadLength
+            lane_length = lane_length + roadLength * float(roadData.laneNumber)
+        
+        for timestamp in timestamps:
+            traffic_length_car = 0
+            traffic_length_lgv = 0
+            traffic_length_hgv = 0
+            for roadData in rectangle.roadDatas:
+                c1 = MapCoordinate(roadData.c1.x, roadData.c1.y)
+                c2 = MapCoordinate(roadData.c2.x, roadData.c2.y)
+                roadLength = c1.toWGS84Coordinate().distance(c2)
+                traffic_car = 0
+                traffic_lgv = 0
+                traffic_hgv = 0
+                if timestamp.hour < 8:
+                    traffic_car = float(roadData.amCar) / 4.0
+                    traffic_lgv = float(roadData.amLgv) / 4.0
+                    traffic_hgv = float(roadData.amHgv) / 4.0
+                elif timestamp.hour >= 8 and timestamp.hour < 10:
+                    traffic_car = float(roadData.amCar)
+                    traffic_lgv = float(roadData.amLgv)
+                    traffic_hgv = float(roadData.amHgv)
+                elif timestamp.hour >= 10 and timestamp.hour < 17:
+                    traffic_car = float(roadData.ipCar)
+                    traffic_lgv = float(roadData.ipLgv)
+                    traffic_hgv = float(roadData.ipHgv)
+                elif timestamp.hour >= 17 and timestamp.hour < 18:
+                    traffic_car = float(roadData.pmCar)
+                    traffic_lgv = float(roadData.pmLgv)
+                    traffic_hgv = float(roadData.pmHgv)
+                else:
+                    traffic_car = float(roadData.pmCar) / 4.0
+                    traffic_lgv = float(roadData.pmLgv) / 4.0
+                    traffic_hgv = float(roadData.pmHgv) / 4.0
+                
+                traffic_length_car = traffic_length_car + traffic_car * roadLength
+                traffic_length_lgv = traffic_length_lgv + traffic_lgv * roadLength
+                traffic_length_hgv = traffic_length_hgv + traffic_hgv * roadLength
+                 
+            output.write(str(rectangle.ID) + "," + str(timestamp.key) + ",")
+            output.write(str(traffic_length_car) + ",")
+            output.write(str(traffic_length_lgv) + ",")
+            output.write(str(traffic_length_hgv) + ",")
+                
+            output.write(str(lane_length) + ",")
+            output.write(str(length) + "\n")
+    
+    output.close()
+    
+    print(printPrefixString + "Done...")
