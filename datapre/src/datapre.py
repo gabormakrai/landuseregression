@@ -6,7 +6,7 @@ from traffic import createTrafficGISFile, createRectangleTraffic
 from osmbuildings import getBuildingsFromOSM
 from topobuildings import generateAllBuildingGisInformation,\
     generateRectangleBuildings
-from osmlanduse import getLandusesFromOSM
+from osmpolygons import getPolygonsFromOSM
 
 DATA_DIRECTORY = "f:\\transfer\\data\\"
 
@@ -36,7 +36,7 @@ print("Processing traffic information for station rectangles...")
 createRectangleTraffic(
     DATA_DIRECTORY + "traffic/traffic.csv",
     DATA_DIRECTORY + "stations/stations_rectangles.csv",
-    DATA_DIRECTORY + "output.csv",
+    DATA_DIRECTORY + "preprocessed/traffic.csv",
     DATA_DIRECTORY + "gis/stations_rectangles_traffic.csv",
     "\t")
 
@@ -66,16 +66,23 @@ generateRectangleBuildings(
     DATA_DIRECTORY + "topo/york_buildings_lur.csv",
     DATA_DIRECTORY + "stations/stations_rectangles.csv",
     DATA_DIRECTORY + "gis/station_buildings.csv",
-    DATA_DIRECTORY + "topo/station_buildings.csv",
+    DATA_DIRECTORY + "gis/station_buildings_triangles.csv",
+    DATA_DIRECTORY + "preprocessed/topobuildings.csv",
+    100,
     "\t")
             
 print("Done...")
 
 print("Processing raw osm data for landuses...")
 
-getLandusesFromOSM(
+getPolygonsFromOSM(
     DATA_DIRECTORY + "osm/downloaded/",
+    DATA_DIRECTORY + "stations/stations_rectangles.csv",
+    DATA_DIRECTORY + "preprocessed/osmpolygons.csv",
     DATA_DIRECTORY + "gis/osm_landuse.csv",
+    DATA_DIRECTORY + "osm/polygon_categories.csv",
+    DATA_DIRECTORY + "gis/stations_landuse.csv",
+    DATA_DIRECTORY + "gis/stations_landuse_triangles.csv",
     "\t")
 
 print("Done...")
