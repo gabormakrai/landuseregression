@@ -7,6 +7,7 @@ from osmbuildings import getBuildingsFromOSM
 from topobuildings import generateAllBuildingGisInformation,\
     generateRectangleBuildings
 from osmpolygons import getPolygonsFromOSM
+from yorktime import createTimeFile
 
 DATA_DIRECTORY = "f:\\transfer\\data\\"
 
@@ -83,6 +84,15 @@ getPolygonsFromOSM(
     DATA_DIRECTORY + "osm/polygon_categories.csv",
     DATA_DIRECTORY + "gis/stations_landuse.csv",
     DATA_DIRECTORY + "gis/stations_landuse_triangles.csv",
+    "\t")
+
+print("Done...")
+
+print("Creating time related dataset...")
+
+createTimeFile(
+    DATA_DIRECTORY + "stations/stations_rectangles.csv",
+    DATA_DIRECTORY + "preprocessed/yorktime.csv",
     "\t")
 
 print("Done...")
