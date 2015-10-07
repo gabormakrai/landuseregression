@@ -7,8 +7,9 @@ from MapCoordinate import MapCoordinate
 from WGS84Coordinate import WGS84Coordinate
 
 class Rectangle:
-    def __init__(self, ID, cornerNW, cornerNE, cornerSE, cornerSW):
+    def __init__(self, ID, name, cornerNW, cornerNE, cornerSE, cornerSW):
         self.ID = ID
+        self.name = name
         self.cornerNW = cornerNW
         self.cornerNE = cornerNE
         self.cornerSE = cornerSE
@@ -118,10 +119,11 @@ def saveRectangles(stations, outputFile, printPrefixString = ""):
     
     # create output file
     output = open(outputFile, 'w')
-    output.write("id,nw_latitude,nw_longitude,ne_latitude,ne_longitude,se_latitude,se_longitude,sw_latitude,sw_longitude\n")
+    output.write("id,name,nw_latitude,nw_longitude,ne_latitude,ne_longitude,se_latitude,se_longitude,sw_latitude,sw_longitude\n")
     
     for station in stations:
         output.write(str(station.ID) + ",")
+        output.write(str(station.name) + ",")
         output.write(str(station.northWestCorner.latitude) + ",")
         output.write(str(station.northWestCorner.longitude) + ",")
         output.write(str(station.northEastCorner.latitude) + ",")
@@ -153,11 +155,11 @@ def loadRectangles(rectangles, inputRectangleFile, printPrefixString = ""):
             # split the line
             splittedLine = line.split(',')
             #id,nw_latitude,nw_longitude,ne_latitude,ne_longitude,se_latitude,se_longitude,sw_latitude,sw_longitude
-            northWestCoordinate = WGS84Coordinate(float(splittedLine[1]), float(splittedLine[2])).toMapCoordinate()
-            northEastCoordinate = WGS84Coordinate(float(splittedLine[3]), float(splittedLine[4])).toMapCoordinate()
-            southEastCoordinate = WGS84Coordinate(float(splittedLine[5]), float(splittedLine[6])).toMapCoordinate()
-            southWestCoordinate = WGS84Coordinate(float(splittedLine[7]), float(splittedLine[8])).toMapCoordinate()
-            rectangle = Rectangle(splittedLine[0], northWestCoordinate, northEastCoordinate, southEastCoordinate, southWestCoordinate)
+            northWestCoordinate = WGS84Coordinate(float(splittedLine[2]), float(splittedLine[3])).toMapCoordinate()
+            northEastCoordinate = WGS84Coordinate(float(splittedLine[4]), float(splittedLine[5])).toMapCoordinate()
+            southEastCoordinate = WGS84Coordinate(float(splittedLine[6]), float(splittedLine[7])).toMapCoordinate()
+            southWestCoordinate = WGS84Coordinate(float(splittedLine[8]), float(splittedLine[9])).toMapCoordinate()
+            rectangle = Rectangle(splittedLine[0], splittedLine[1], northWestCoordinate, northEastCoordinate, southEastCoordinate, southWestCoordinate)
             rectangles.append(rectangle)
     
     print(printPrefixString + "#rectangles: " + str(len(rectangles)))
