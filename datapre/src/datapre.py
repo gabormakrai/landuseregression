@@ -8,6 +8,8 @@ from topobuildings import generateAllBuildingGisInformation,\
     generateRectangleBuildings
 from osmpolygons import getPolygonsFromOSM
 from yorktime import createTimeFile
+from airquality import processAirQualityFile
+from weather import processWeatherFile
 
 DATA_DIRECTORY = "f:\\transfer\\data\\"
 
@@ -93,6 +95,26 @@ print("Creating time related dataset...")
 createTimeFile(
     DATA_DIRECTORY + "stations/stations_rectangles.csv",
     DATA_DIRECTORY + "preprocessed/yorktime.csv",
+    "\t")
+
+print("Done...")
+
+print("Processing air quality file...")
+
+processAirQualityFile(
+    DATA_DIRECTORY + "aq/airquality.csv",
+    DATA_DIRECTORY + "stations/stations_rectangles.csv",
+    DATA_DIRECTORY + "preprocessed/airquality.csv",
+    "\t")
+
+print("Done...")
+
+print("Processing weather file...")
+
+processWeatherFile(
+    DATA_DIRECTORY + "weather/yorkweather.csv",
+    DATA_DIRECTORY + "stations/stations_rectangles.csv",
+    DATA_DIRECTORY + "preprocessed/weather.csv",
     "\t")
 
 print("Done...")
