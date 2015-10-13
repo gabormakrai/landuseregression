@@ -30,9 +30,9 @@ def processWeatherFile(inputFile, inputRectangleFile, outputFile, printPrefixStr
             splittedLine = line.split(',')
             
             for rectangle in rectangles:
-                output.write(splittedLine[0])
-                output.write(",")
                 output.write(str(rectangle.ID))
+                output.write(",")
+                output.write(splittedLine[0])
                 output.write(",")
                 output.write(splittedLine[1])
                 output.write(",")
