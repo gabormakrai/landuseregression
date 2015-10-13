@@ -114,7 +114,7 @@ def createTriangleAndSaveFiles(rectangles, outputFile, detailLevel, outputGISTri
     
     # create output file
     output = open(outputFile, 'w')
-    output.write("location,leisure_area,landuse_area\n")
+    output.write("location,timestamp,leisure_area,landuse_area\n")
     
     timestamps = generateTimestamps(2013)
     
