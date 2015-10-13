@@ -86,9 +86,9 @@ def processAirQualityFile(inputFile, inputRectangleFile, outputFile, printPrefix
                     if rectangle.name.lower() == stationName:
                         location = rectangle.ID
                 
-                output.write(timestampString)
-                output.write(",")
                 output.write(str(location))
+                output.write(",")
+                output.write(timestampString)
                 output.write(",")
                 output.write(noxData[stationName])
                 output.write("\n")
