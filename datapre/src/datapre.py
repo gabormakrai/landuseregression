@@ -10,6 +10,7 @@ from osmpolygons import getPolygonsFromOSM
 from yorktime import createTimeFile
 from airquality import processAirQualityFile
 from weather import processWeatherFile
+from join import joinFiles
 
 DATA_DIRECTORY = "f:\\transfer\\data\\"
 
@@ -115,6 +116,23 @@ processWeatherFile(
     DATA_DIRECTORY + "weather/yorkweather.csv",
     DATA_DIRECTORY + "stations/stations_rectangles.csv",
     DATA_DIRECTORY + "preprocessed/weather.csv",
+    "\t")
+
+print("Done...")
+
+print("Joining preprocessed files...")
+
+filesToJoin = [
+    DATA_DIRECTORY + "preprocessed/traffic.csv",
+    DATA_DIRECTORY + "preprocessed/topobuildings.csv",
+    DATA_DIRECTORY + "preprocessed/osmpolygons.csv",
+    DATA_DIRECTORY + "preprocessed/airquality.csv",
+    DATA_DIRECTORY + "preprocessed/weather.csv",
+    DATA_DIRECTORY + "preprocessed/yorktime.csv"]
+
+joinFiles(
+    filesToJoin,
+    DATA_DIRECTORY + "data.csv",
     "\t")
 
 print("Done...")
