@@ -192,7 +192,7 @@ def generateRectangleBuildings(inputBuildingFile, inputRectangleFile, outputGisF
     print(printPrefixString + "Writing out the main output file (doing covered area) to " + outputFile + "...")
     # create output file
     output = open(outputFile, 'w')
-    output.write("location,buildings_number,buildings_area\n")
+    output.write("location,timestamp,buildings_number,buildings_area\n")
     
     timestamps = generateTimestamps(2013)
     
