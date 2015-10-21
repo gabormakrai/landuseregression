@@ -22,9 +22,9 @@ def correlationEval(targetData, predictionData):
         varianceTarget = varianceTarget + math.pow(targetData[i] - averageTarget, 2.0)
         variancePrediction = variancePrediction + math.pow(predictionData[i] - averagePrediction, 2.0)
     
-    stddevTarget = math.sqrt(varianceTarget);
-    stddevPrediction = math.sqrt(variancePrediction);
+    stddevTarget = math.sqrt(varianceTarget)
+    stddevPrediction = math.sqrt(variancePrediction)
     
-    r = r / (stddevTarget * stddevPrediction);
+    r = r / (stddevTarget * stddevPrediction)
     
     return r
