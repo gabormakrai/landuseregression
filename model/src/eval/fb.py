@@ -1,6 +1,6 @@
 
 # calculating fractional bias
-def correlationEval(targetData, predictionData):
+def fbEval(targetData, predictionData):
     
     averageTarget = 0.0
     averagePrediction = 0.0
