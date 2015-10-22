@@ -13,6 +13,9 @@ from models.model5 import trainModel5, applyModel5
 from models.model6 import trainModel6, applyModel6
 from norm import NORMALIZATION
 from norm import NONORMALIZATION
+from eval.correlation import correlationEval
+from eval.mae import maeEval
+from eval.fb import fbEval
 
 # parameters
 k = 8
@@ -26,6 +29,8 @@ models.append({"name": "model4", "norm": NONORMALIZATION, "train": trainModel4, 
 models.append({"name": "model5", "norm": NONORMALIZATION, "train": trainModel5, "apply": applyModel5})
 models.append({"name": "model6", "norm": NONORMALIZATION, "train": trainModel6, "apply": applyModel6})
 
+evalFunctions = [rmseEval, correlationEval, maeEval, fbEval]
+
 # load the data
 data = {}
 columns = []
@@ -34,5 +39,5 @@ loadData(dataFile, ["location", "timestamp"], data, columns)
 # run cross validation for all the methods
 for model in models:
     print("Running " + str(k) + "-fold X-Validation with " + model["name"] + "(norm:" + str(model["norm"]) + ")")
-    crossValidation(k, data, columns, "nox", model["norm"], model["train"], model["apply"], rmseEval)
+    crossValidation(k, data, columns, "nox", model["norm"], model["train"], model["apply"], evalFunctions)
 

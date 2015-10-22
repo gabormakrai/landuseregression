@@ -3,7 +3,7 @@ File contains the code for splitting the data for Cross-Validation
 """
 import random
 
-def crossValidation(k, data, columns, targetColumn, normalization, trainFunction, applyFunction, evalFunction):
+def crossValidation(k, data, columns, targetColumn, normalization, trainFunction, applyFunction, evalFunctions):
     # create group class data
     group = []
     dataCounter = {}
@@ -46,8 +46,12 @@ def crossValidation(k, data, columns, targetColumn, normalization, trainFunction
         
         normalization.denormalize(predictionData, targetColumn)
         
-        m = evalFunction(testData[targetColumn], predictionData)
+        results = []
         
-        print(str(m))
+        for evalFunction in evalFunctions:
+            result = evalFunction(testData[targetColumn], predictionData)
+            results.append(result) 
+        
+        print(str(results))
         
             

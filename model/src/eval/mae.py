@@ -5,4 +5,4 @@ def maeEval(targetData, predictionData):
     for i in range(0, len(targetData)):
         mae = mae + abs(targetData[i] - predictionData[i])
     mae = mae / float(len(targetData))
-    return mae
+    return ["mae", mae]

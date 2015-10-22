@@ -8,4 +8,4 @@ def rmseEval(targetData, predictionData):
     for i in range(0, len(targetData)):
         rmse = rmse + math.pow(targetData[i] - predictionData[i], 2.0)
     rmse = math.sqrt(rmse / float(len(targetData)))
-    return rmse
+    return ["rmse", rmse]

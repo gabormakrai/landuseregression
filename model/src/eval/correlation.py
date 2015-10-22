@@ -27,4 +27,4 @@ def correlationEval(targetData, predictionData):
     
     r = r / (stddevTarget * stddevPrediction)
     
-    return r
+    return ["r", r]

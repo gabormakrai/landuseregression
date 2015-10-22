@@ -14,4 +14,4 @@ def fbEval(targetData, predictionData):
         
     fb = (averageTarget - averagePrediction) / (0.5 * (averageTarget + averagePrediction))
     
-    return fb
+    return ["fb", fb]
