@@ -28,7 +28,7 @@ def joinFiles(inputFiles, outputFile, printPrefixString = ""):
                     firstLine = False
                     parseHeader(line, headersDictionary, headersArray)
                     for c in headersDictionary:
-                        if c != "location" and c != "timestampe":
+                        if c != "location" and c != "timestamp":
                             fileColumns.add(c)
                             columns.add(c) 
                     continue
@@ -81,10 +81,10 @@ def joinFiles(inputFiles, outputFile, printPrefixString = ""):
     output.close()
         
     print(printPrefixString + "Done...")
+    
 def parseHeader(header, headersDictionary, headersArray):
 
     splittedHeader = header.split(",")
     for i in range(0,len(splittedHeader)):
         headersDictionary[splittedHeader[i]] = i
         headersArray.append(splittedHeader[i])
-
