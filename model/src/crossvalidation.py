@@ -19,6 +19,9 @@ def crossValidation(k, data, columns, targetColumn, normalization, trainFunction
     print("\tGroups: " + str(dataCounter))
     
     iterationResults = []
+    scatterResult = {}
+    scatterResult["prediction"] = []
+    scatterResult["test"] = []
         
     for iteration in range(0, k):        
         trainData = {}
@@ -48,6 +51,11 @@ def crossValidation(k, data, columns, targetColumn, normalization, trainFunction
         predictionData = applyFunction(testData, model)
         
         normalization.denormalize(predictionData, targetColumn)
+        
+        for d in testData[targetColumn]:
+            scatterResult["test"].append(d)
+        for d in predictionData:
+            scatterResult["prediction"].append(d)
         
         resultArray = []
         
@@ -96,4 +104,4 @@ def crossValidation(k, data, columns, targetColumn, normalization, trainFunction
         value = math.sqrt(value)
         dev[key] = value
     
-    return {"avg": averages, "std": dev }
+    return {"avg": averages, "std": dev, "scatter": scatterResult }
