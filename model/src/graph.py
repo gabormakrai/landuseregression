@@ -27,3 +27,18 @@ def doErrorBar(fileName, title, xAxis, yAxis, names, means, stddevs):
 
     plt.savefig(fileName)
 
+def doScatterDiagram(fileName, title, xAxis, yAxis, x, y):
+    
+    plt.subplots()
+        
+    plt.scatter(x, y, c='r', alpha=0.1)
+    
+    plt.xlabel(xAxis)
+    plt.ylabel(yAxis)
+    plt.title(title)
+    plt.margins(0.04, 0.04)
+    
+    plt.xlim(-100.0, 500.0)
+    plt.ylim(-100.0, 500.0)
+        
+    plt.savefig(fileName)
