@@ -2,6 +2,7 @@
 File contains the code for splitting the data for Cross-Validation
 """
 import random
+import math
 
 def crossValidation(k, data, columns, targetColumn, normalization, trainFunction, applyFunction, evalFunctions):
     # create group class data
@@ -16,6 +17,8 @@ def crossValidation(k, data, columns, targetColumn, normalization, trainFunction
         
     print("Columns: " + str(columns))
     print("\tGroups: " + str(dataCounter))
+    
+    iterationResults = []
         
     for iteration in range(0, k):        
         trainData = {}
@@ -46,12 +49,51 @@ def crossValidation(k, data, columns, targetColumn, normalization, trainFunction
         
         normalization.denormalize(predictionData, targetColumn)
         
-        results = []
+        resultArray = []
         
         for evalFunction in evalFunctions:
             result = evalFunction(testData[targetColumn], predictionData)
-            results.append(result) 
-        
-        print(str(results))
-        
+            resultArray.append(result)
             
+        print("\t" + str(resultArray))
+        
+        iterationResults.append(resultArray)
+    
+    averages = {}
+    
+    for result in iterationResults:
+        for keyvalue in result:
+            key = keyvalue[0]
+            value = keyvalue[1]
+            if key not in averages:
+                averages[key] = 0.0
+            
+            current = averages[key]
+            current = current + value
+            averages[key] = current
+    
+    for key in averages:
+        value = averages[key]
+        value = value / len(iterationResults)
+        averages[key] = value
+        
+    dev = {}
+    
+    for result in iterationResults:
+        for keyvalue in result:
+            key = keyvalue[0]
+            value = keyvalue[1]
+            if key not in dev:
+                dev[key] = 0.0
+            
+            current = dev[key]
+            current = current + math.pow(value - averages[key], 2.0)
+            dev[key] = current
+    
+    for key in averages:
+        value = dev[key]
+        value = value / len(iterationResults)
+        value = math.sqrt(value)
+        dev[key] = value
+    
+    return {"avg": averages, "std": dev }
