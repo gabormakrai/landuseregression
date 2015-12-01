@@ -4,7 +4,7 @@ File contains the code for splitting the data for Cross-Validation
 import random
 import math
 
-def crossValidation(k, data, columns, targetColumn, normalization, trainFunction, applyFunction, evalFunctions):
+def crossValidation(k, data, columns, targetColumn, normalization, trainFunction, applyFunction, evalFunctions, parameters):
     # create group class data
     group = []
     dataCounter = {}
@@ -15,8 +15,8 @@ def crossValidation(k, data, columns, targetColumn, normalization, trainFunction
         group.append(g)
         dataCounter[g] = dataCounter[g] + 1
         
-    print("Columns: " + str(columns))
-    print("\tGroups: " + str(dataCounter))
+    #print("Columns: " + str(columns))
+    #print("\tGroups: " + str(dataCounter))
     
     iterationResults = []
     scatterResult = {}
@@ -46,9 +46,9 @@ def crossValidation(k, data, columns, targetColumn, normalization, trainFunction
         
         normalization.normalize(testData)
                 
-        model = trainFunction(trainData, columns, targetColumn)
+        model = trainFunction(trainData, columns, targetColumn, parameters)
         
-        predictionData = applyFunction(testData, model)
+        predictionData = applyFunction(testData, model, parameters)
         
         normalization.denormalize(predictionData, targetColumn)
         
@@ -63,7 +63,7 @@ def crossValidation(k, data, columns, targetColumn, normalization, trainFunction
             result = evalFunction(testData[targetColumn], predictionData)
             resultArray.append(result)
             
-        print("\t" + str(resultArray))
+        #print("\t" + str(resultArray))
         
         iterationResults.append(resultArray)
     
