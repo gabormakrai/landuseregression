@@ -7,13 +7,13 @@ from osmbuildings import getBuildingsFromOSM
 from topobuildings import generateAllBuildingGisInformation,\
     generateRectangleBuildings
 from osmpolygons import getPolygonsFromOSM
-from yorktime import createTimeFile
+from yorktime import createTimeFile, createTimeFileBinned
 from airquality import processAirQualityFile
-from weather import processWeatherFile
+from weather import processWeatherFile, processWeatherFileBinned
 from join import joinFiles
 
 DATA_DIRECTORY = "f:\\transfer\\data\\"
-
+"""
 print("Create rectangles for monitoring stations...")
 
 createStationRectangles(
@@ -90,12 +90,21 @@ getPolygonsFromOSM(
     "\t")
 
 print("Done...")
-
+"""
 print("Creating time related dataset...")
 
 createTimeFile(
     DATA_DIRECTORY + "stations/stations_rectangles.csv",
     DATA_DIRECTORY + "preprocessed/yorktime.csv",
+    "\t")
+
+print("Done...")
+
+print("Creating time related dataset...")
+
+createTimeFileBinned(
+    DATA_DIRECTORY + "stations/stations_rectangles.csv",
+    DATA_DIRECTORY + "preprocessed/yorktime2.csv",
     "\t")
 
 print("Done...")
@@ -120,6 +129,17 @@ processWeatherFile(
 
 print("Done...")
 
+print("Processing weather file...")
+
+processWeatherFileBinned(
+    DATA_DIRECTORY + "weather/yorkweather.csv",
+    DATA_DIRECTORY + "stations/stations_rectangles.csv",
+    DATA_DIRECTORY + "preprocessed/weather2.csv",
+    "\t")
+
+print("Done...")
+
+
 print("Joining preprocessed files...")
 
 filesToJoin = [
@@ -133,6 +153,23 @@ filesToJoin = [
 joinFiles(
     filesToJoin,
     DATA_DIRECTORY + "data.csv",
+    "\t")
+
+print("Done...")
+
+print("Joining preprocessed files...")
+
+filesToJoin = [
+    DATA_DIRECTORY + "preprocessed/traffic.csv",
+    DATA_DIRECTORY + "preprocessed/topobuildings.csv",
+    DATA_DIRECTORY + "preprocessed/osmpolygons.csv",
+    DATA_DIRECTORY + "preprocessed/airquality.csv",
+    DATA_DIRECTORY + "preprocessed/weather2.csv",
+    DATA_DIRECTORY + "preprocessed/yorktime2.csv"]
+
+joinFiles(
+    filesToJoin,
+    DATA_DIRECTORY + "data2.csv",
     "\t")
 
 print("Done...")
