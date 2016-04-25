@@ -224,3 +224,37 @@ def generateIndex(buildings):
         idx.add(i, (minLon, minLat, maxLon, maxLat))
     
     return idx
+
+def multiplyBuildingData(inputFile, timestamps, outputfile, printPrefixString = ""):
+    
+    # open the file
+    print(printPrefixString + "Open topo building data file " + inputFile + " and open output file " + outputfile + "...")
+    
+    output = open(outputfile, 'w')
+    output.write("location,timestamp,buildings_number,buildings_area\n");    
+    
+    firstLine = True
+    # open the file
+    with open(inputFile) as infile:
+        # read line by line
+        for line in infile:
+            # skip the first line (header line)
+            if firstLine == True:
+                firstLine = False
+                continue
+            # remove newline character from the end
+            line = line.rstrip()
+            # split the line
+            splittedLine = line.split(',')
+            
+            for timestamp in timestamps:    
+                output.write(splittedLine[0]) # location
+                output.write(",")
+                output.write(timestamp.key)
+                output.write(",")
+                output.write(splittedLine[1]) # buildings_number
+                output.write(",")
+                output.write(splittedLine[2]) # buildings_area
+                output.write("\n")
+    output.close()
+    
