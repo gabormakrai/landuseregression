@@ -9,10 +9,10 @@ class Timestamp:
     
     def createBasedOnKey(self, key):
         self.key = key
-        self.year = int(key[0:3])
-        self.month = int(key[4:5])
-        self.day = int(key[6:7])
-        self.hour = int(key[8:9])
+        self.year = int(key[0:4])
+        self.month = int(key[4:6])
+        self.day = int(key[6:8])
+        self.hour = int(key[8:10])
         return self
         
     def createBasedOnOther(self, year, month, day, hour):
@@ -52,3 +52,18 @@ def generateTimestamps(year):
                 timestamps.append(t)
     return timestamps
 
+def generateDatesStringForYear(year):
+    dates = []
+    for month in range(1, 13):
+        for day in range(1, DAYS_OF_MONTH[month - 1] + 1):
+                dateString = str(year)
+                if (month < 10):
+                    dateString = dateString + "0"
+                dateString = dateString + str(month)
+                if (day < 10):
+                    dateString = dateString + "0"
+                dateString = dateString + str(day)
+                dates.append(dateString)
+    return dates
+    
+    
