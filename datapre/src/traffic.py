@@ -309,3 +309,115 @@ def createTrafficRelatedData(rectangles, outputFile, printPrefixString = ""):
     output.close()
     
     print(printPrefixString + "Done...")
+
+def createRectangleTrafficAnnual(inputTrafficFile, inputRectangleFile, outputFile, outputGISFile, printPrefixString = ""):
+    roadDataArray = []
+    # load traffic data
+    loadTraffic(roadDataArray, inputTrafficFile, printPrefixString)
+    
+    rectangles = []
+    # load rectangle data
+    loadRectangles(rectangles, inputRectangleFile, printPrefixString)
+
+    print(printPrefixString + "Calculate RoadDatas for each rectangle...")
+    
+    # add MapCoordinates for roadDataArray
+    for roadData in roadDataArray:
+        roadData.c1 = WGS84Coordinate(roadData.latitude1, roadData.longitude1).toMapCoordinate()
+        roadData.c2 = WGS84Coordinate(roadData.latitude2, roadData.longitude2).toMapCoordinate()
+        
+    #calculateRelatedRoadData(rectangles[2], roadDataArray)
+    for rectangle in rectangles:
+        print(printPrefixString + "\tstationId:" + str(rectangle.ID))
+        calculateRelatedRoadData(rectangle, roadDataArray)
+    
+    print(printPrefixString + "Done...")
+    
+    print(printPrefixString + "Collect all the roadData which is part of the rectangles...")
+
+    rectanglesRoadDataArray = []
+    for rectangle in rectangles:
+        for roadData in rectangle.roadDatas:
+            rectanglesRoadDataArray.append(roadData)
+            
+    print(printPrefixString + "Done...")
+    
+    print(printPrefixString + "Write out rectangle roadData GIS information to " + outputGISFile + "...")
+    
+    # write out gis File
+    output = open(outputGISFile, 'w')
+    
+    #header
+    output.write("id;speed_limit;lane_number;one_way;am_car;am_lgv;am_hgv;ip_car;ip_lgv;ip_hgv;pm_car;pm_lgv;pm_hgv;linestring\n")
+    
+    for roadData in rectanglesRoadDataArray:
+        output.write(str(roadData.ID) + ";")
+        output.write(str(roadData.speedLimit) + ";")
+        output.write(str(roadData.laneNumber) + ";")
+        output.write(str(roadData.oneWay) + ";")
+        output.write(str(roadData.amCar) + ";")
+        output.write(str(roadData.amLgv) + ";")
+        output.write(str(roadData.amHgv) + ";")
+        output.write(str(roadData.ipCar) + ";")
+        output.write(str(roadData.ipLgv) + ";")
+        output.write(str(roadData.ipHgv) + ";")
+        output.write(str(roadData.pmCar) + ";")
+        output.write(str(roadData.pmLgv) + ";")
+        output.write(str(roadData.pmHgv) + ";")
+        c1 = MapCoordinate(roadData.c1.x, roadData.c1.y).toWGS84Coordinate()
+        c2 = MapCoordinate(roadData.c2.x, roadData.c2.y).toWGS84Coordinate()
+        output.write("LINESTRING (" + str(c1.longitude) + " ")
+        output.write(str(c1.latitude) + ", ")
+        output.write(str(c2.longitude) + " ")
+        output.write(str(c2.latitude) + ")\n")
+    
+    output.close()
+    
+    print(printPrefixString + "Done...")
+    
+    createTrafficRelatedDataAnnual(rectangles, outputFile, printPrefixString)
+    
+    
+def createTrafficRelatedDataAnnual(rectangles, outputFile, printPrefixString = ""):
+    print(printPrefixString + "Write out traffic related data to " + outputFile + "...")
+    
+    # write out gis File
+    output = open(outputFile, 'w')
+    
+    #header
+    output.write("location,traffic_length_car,traffic_length_lgv,traffic_length_hgv,lane_length,length\n")
+    
+    for rectangle in rectangles:
+        lane_length = 0
+        length = 0
+        
+        traffic_length_car = 0
+        traffic_length_lgv = 0
+        traffic_length_hgv = 0
+        
+        for roadData in rectangle.roadDatas:
+            c1 = MapCoordinate(roadData.c1.x, roadData.c1.y)
+            c2 = MapCoordinate(roadData.c2.x, roadData.c2.y)
+            roadLength = c1.toWGS84Coordinate().distance(c2)
+            length = length + roadLength
+            lane_length = lane_length + roadLength * float(roadData.laneNumber)
+            
+            traffic_car = float(roadData.amCar) + float(roadData.ipCar) + float(roadData.pmCar)
+            traffic_lgv = float(roadData.amLgv) + float(roadData.ipLgv) + float(roadData.pmLgv)
+            traffic_hgv = float(roadData.amHgv) + float(roadData.ipHgv) + float(roadData.pmHgv)
+            
+            traffic_length_car = traffic_length_car + traffic_car * roadLength
+            traffic_length_lgv = traffic_length_lgv + traffic_lgv * roadLength
+            traffic_length_hgv = traffic_length_hgv + traffic_hgv * roadLength
+       
+        output.write(str(rectangle.ID) + ",")
+        output.write(str(traffic_length_car) + ",")
+        output.write(str(traffic_length_lgv) + ",")
+        output.write(str(traffic_length_hgv) + ",")
+        output.write(str(lane_length) + ",")
+        output.write(str(length) + "\n")
+    
+    output.close()
+    
+    print(printPrefixString + "Done...")    
+    
