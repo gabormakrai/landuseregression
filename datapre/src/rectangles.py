@@ -24,6 +24,75 @@ class Station:
     def toString(self):
         return "Station(id:" + str(self.ID) + ",name:" + str(self.name) + ",lat:" + str(self.latitude) + "lng:" + str(self.longitude) + ")"
 
+
+"""
+Generate rectangles for a specific grid...
+"""
+def generateGridStation(rectangleSize, latitudeNW, longitudeNW, latitudeSE, longitudeSE, outputFile, printPrefixString = ""):
+    
+    print(printPrefixString + "Generating rectangles for the grid...")
+    
+    stations = []
+    
+#     distanceLatitude = 0.0
+#     distanceLongitude = 0.0
+    
+    c1 = WGS84Coordinate(latitudeNW, longitudeNW)
+    c2 = WGS84Coordinate(latitudeSE, longitudeNW)
+    c3 = WGS84Coordinate(latitudeNW, longitudeSE)
+    
+    distanceLatitude = c1.distance(c2)
+    distanceLongitude = c1.distance(c3)
+    
+    minLatitude = latitudeNW
+    minLongitude = longitudeNW
+    
+    gridX = int(distanceLongitude / rectangleSize)
+    gridY = int(distanceLatitude / rectangleSize)
+    
+    dLatitude = (rectangleSize / distanceLatitude) * (latitudeSE - latitudeNW)
+    dLongitude = (rectangleSize / distanceLongitude) * (longitudeSE - longitudeNW)
+    
+#     maxLatitude = minLatitude + (gridY + 1) * dLatitude
+#     maxLongitude = minLongitude + (gridX + 1) * dLongitude
+    
+    ID = 0
+    
+    for y in range(0, gridY): 
+        for x in range(0, gridX):
+            name = "grid" + str(ID)
+            ID = ID + 1
+            lat1 = minLatitude + (y + 0) * dLatitude
+            lat2 = minLatitude + (y + 1) * dLatitude
+            long1 = minLongitude + (x + 0) * dLongitude
+            long2 = minLongitude + (x + 1) * dLongitude
+            
+            lat3 = (lat1 + lat2) / 2.0
+            long3 = (long1 + long2) / 2.0
+            
+            station = Station(ID, name, lat3, long3)
+            
+            station.northWestCorner = WGS84Coordinate(lat1, long1)
+            station.northEastCorner = WGS84Coordinate(lat1, long2)
+            station.southWestCorner = WGS84Coordinate(lat2, long1)
+            station.southEastCorner = WGS84Coordinate(lat2, long2)
+            
+            stations.append(station)
+            
+    print(printPrefixString + "\t#stations: " + str(len(stations)))
+    
+    # create output file
+    output = open(outputFile, 'w')
+    output.write("id,name,latitude,longitude\n")
+    
+    for station in stations:
+        output.write(str(station.ID) + ",")
+        output.write(str(station.name) + ",")
+        output.write(str(station.latitude) + ",")
+        output.write(str(station.longitude) + "\n")
+        
+    output.close()
+                
 """
 This function is creating buffer rectangles for each air quality monitoring
 station. 
