@@ -1,88 +1,75 @@
-import xml.etree.ElementTree as ET
 from WGS84Coordinate import WGS84Coordinate
-import os
 from rectangles import loadRectangles
 from Geometry import pointInTriangle
-from Timestamp import generateTimestamps
 from MapCoordinate import MapCoordinate
- 
+
 class OsmPolygon:
     def __init__(self, ID, category, coordinates):
         self.ID = ID
         self.category = category
         self.coordinates = coordinates
-         
-def getPolygonsFromFile(fileName, polygons, keys):
-    parser = ET.XMLParser(encoding="utf-8")
-    tree = ET.parse(fileName, parser = parser)
-    root = tree.getroot()
-     
-    coordinates = {}
-     
-    for element in root.findall('node'):
-        longitude = element.get('lon')
-        latitude = element.get('lat')
-        ID = int(element.get('id'))
-        coordinates[ID] = WGS84Coordinate(latitude, longitude)
-         
-    for way in root.findall('way'):
-        isInteresting = False
-        keyValue = ""
-        for tag in way.findall('tag'):
-            if tag.get('k') in keys:
-                keyValue = tag.get("k") + "/" + tag.get("v")
-                isInteresting = True
-        if isInteresting == False:
-            continue
-        polygonCoordinates = []
-        for nd in way.findall('nd'):
-            ID = int(nd.get('ref'))
-            polygonCoordinates.append(coordinates[ID])
-        polygon = OsmPolygon(int(way.get('id')), keyValue, polygonCoordinates)
-        polygons[polygon.ID] = polygon
- 
-def getPolygonsFromOSM(inputOSMDirectory, inputRectangleFile, outputFile, outputGISFile, outputCategoryFile, outputStationPolyGisFile, outputStationTraingleGisFile, printPrefixString = ""):
-     
-    print(printPrefixString + "Opening directory " + inputOSMDirectory + " for osm files...")
-
-    keys = set()
-    keys.add("landuse")
-    keys.add("leisure")
-    keys.add("natural")
-         
-    polygons = {}
-     
-    fileNames = next(os.walk(inputOSMDirectory))[2]
-    for fileName in fileNames:
-        absoluteFileName = inputOSMDirectory + fileName
-        print("\r" + printPrefixString + "processing file: " + absoluteFileName + "                        ", end = "")
         
-        getPolygonsFromFile(absoluteFileName, polygons, keys)
-         
-    print("\r" + printPrefixString + "Loading files is done...                                              ")
-    print(printPrefixString + "#polygons: " + str(len(polygons)))
+def loadPolygons(fileName, printPrefixString):
     
-    saveDownAllCategory(outputCategoryFile, polygons, printPrefixString)
-     
-    saveAllPolygonsGis(polygons, outputGISFile, printPrefixString)
+    polygons = {}
+    
+    print(printPrefixString + "Loading " + fileName + " polygon file...")
+    
+    firstLine = True
+    # open the file
+    with open(fileName) as infile:
+        # read line by line
+        for line in infile:
+            # skip the first line (header line)
+            if firstLine == True:
+                firstLine = False
+                continue
+            # remove newline character from the end
+            line = line.rstrip()
+            # split the line
+            splittedLine = line.split(',')
+            
+            #314867713,natural/wood,2014-11-28T14:46:26Z,53.7872633;-0.8605173;53.7872554;-0.8604771;53.7872432;-0.8604623;53.7872056;-0.860443;53.7871637;-0.8604493;53.7867152;-0.860634;53.7865587;-0.8607221;53.786546;-0.8607951;53.7865397;-0.8610242;53.7862582;-0.8610407;53.7863269;-0.8611622;53.7865431;-0.8614102;53.7866365;-0.8614155;53.7868948;-0.8612142;53.7871119;-0.860948;53.7872072;-0.8608029;53.7872608;-0.8605705;53.7872633;-0.8605173    
+            polyId = str(splittedLine[0])
+            category = str(splittedLine[1])
+            shape = str(splittedLine[2])
+            
+            splittedShape = shape.split(";")
+            coordinates = []
+            for i in range(0, int(len(splittedShape) / 2)):
+                lat = splittedShape[2 * i]
+                lon = splittedShape[2 * i + 1]
+                coordinates.append(WGS84Coordinate(lat, lon))
+            
+            polygon = OsmPolygon(polyId, category, coordinates)
+            polygons[polyId] = polygon
+                            
+    print(printPrefixString + "\t#polygons: " + str(len(polygons)))
+    print(printPrefixString + "Done...")
+    return polygons
+    
+def getRectangleOSMPolygons(inputPolygonFile, inputRectangleFile, outputFile, outputStationTraingleGisFile, printPrefixString):
+    
+    polygons = loadPolygons(inputPolygonFile, printPrefixString)
     
     # load rectangles
     rectangles = []
     # load rectangle data
     loadRectangles(rectangles, inputRectangleFile, printPrefixString)
-    
+     
     # calculating stations polygons
     matchingStationPolygons(rectangles, polygons, printPrefixString)
-    
-    # write out all station related polygons GIS info
-    saveStationsPolygonsGis(rectangles, outputStationPolyGisFile, printPrefixString)    
-    
+     
+#     # write out all station related polygons GIS info
+#     saveStationsPolygonsGis(rectangles, outputStationPolyGisFile, printPrefixString)    
+     
     # generate station polygons triangles
     createTriangleAndSaveFiles(rectangles, outputFile, 100, outputStationTraingleGisFile, printPrefixString)
-    
-    
+  
+         
+     
 def createTriangleAndSaveFiles(rectangles, outputFile, detailLevel, outputGISTriangleFile, printPrefixString = ""):
-    
+     
     print(printPrefixString + "Writing out triangle gis data to " + outputGISTriangleFile)
     output = open(outputGISTriangleFile, 'w')
     triangleId = 0
@@ -109,15 +96,12 @@ def createTriangleAndSaveFiles(rectangles, outputFile, detailLevel, outputGISTri
                 output.write("))\n")
     output.close()
     print(printPrefixString + "Done...")
-
+ 
     print(printPrefixString + "Writing out the main output file (doing covered area) to " + outputFile + "...")
-    
+     
     # create output file
     output = open(outputFile, 'w')
-    output.write("location,timestamp,leisure_area,landuse_area\n")
-    
-    timestamps = generateTimestamps(2013)
-    
+    output.write("location,leisure_area,landuse_area\n")
     for rectangle in rectangles:
         print(printPrefixString + "\tStation: " + str(rectangle.ID))
         leisureAreaCoverred = 0
@@ -133,10 +117,10 @@ def createTriangleAndSaveFiles(rectangles, outputFile, detailLevel, outputGISTri
                 p1y = se.y + (nw.y - se.y) * (float(y) / float(detailLevel))
                 p2y = se.y + (nw.y - se.y) * (float(y + 1) / float(detailLevel))
                 c = MapCoordinate((p1x + p2x) / 2.0, (p1y + p2y) / 2.0)
-                
+                 
                 leisureCovered = False
                 landuseCovered = False
-                
+                 
                 for polygon in rectangle.polygons:
                     for triangle in polygon.triangles:
                         v1 = triangle[0]
@@ -149,20 +133,19 @@ def createTriangleAndSaveFiles(rectangles, outputFile, detailLevel, outputGISTri
                             if polygon.category[0:7] == "landuse" and landuseCovered == False:
                                 landuseAreaCoverred = landuseAreaCoverred + 1
                                 landuseCovered = True
-        
+         
         landuseCoverage = float(landuseAreaCoverred)/(detailLevel * detailLevel)
         leisureCoverage = float(leisureAreaCoverred)/(detailLevel * detailLevel)
-        
-        for timestamp in timestamps: 
-            output.write(str(rectangle.ID) + "," + timestamp.key + "," + str(landuseCoverage) + "," + str(leisureCoverage) + "\n")
-            
+         
+        output.write(str(rectangle.ID) + "," + str(landuseCoverage) + "," + str(leisureCoverage) + "\n")
+             
     output.close()
     print(printPrefixString + "Done...")
-        
+         
 def matchingStationPolygons(rectangles, polygons, printPrefixString = ""):
-
+ 
     print(printPrefixString + "Matching station rectangles with polygons...")
-        
+         
     # find out building rectangles
     for rectangle in rectangles:
         print(printPrefixString + "\tStation " + str(rectangle.ID))
@@ -179,17 +162,17 @@ def matchingStationPolygons(rectangles, polygons, printPrefixString = ""):
                 if b == True:
                     rectanglePolygon.append(polygon)
                     break
-                
+                 
         rectangle.polygons = rectanglePolygon
-        
+         
     print(printPrefixString + "Done...")
-    
+     
 def saveDownAllCategory(outputFile, polygons, printPrefixString = ""):
-    
+     
     print(printPrefixString + "Writing out categories from polygons to " + outputFile + "....")
-    
+     
     frequency = {}
-    
+     
     for pId in polygons:
         key = polygons[pId].category 
         if key not in frequency:
@@ -198,47 +181,47 @@ def saveDownAllCategory(outputFile, polygons, printPrefixString = ""):
             f = frequency[key]
             f = f + 1
             frequency[key] = f
-    
+     
     categoryArray = []
     for category in frequency:
         categoryArray.append(category)
-        
+         
     categoryArray.sort()
-
+ 
     # create output file
     output = open(outputFile, 'w')
     output.write("category,frequency\n")
-    
+     
     for c in categoryArray:
         output.write(c + "," + str(frequency[c]) + "\n")
-        
+         
     output.close()
-    
+     
     print(printPrefixString + "Done...")
-    
+     
 def saveAllPolygonsGis(polygons, fileName, printPrefixString = ""):
-     
+      
     print(printPrefixString + "Saving GIS information for polygons to " + fileName + "...")
-     
+      
     # create output file
     output = open(fileName, 'w')
     output.write("id;category;polygon\n")
-     
+      
     for ID in polygons:
         polygon = polygons[ID]
         output.write(str(polygon.ID) + ";")
         output.write(polygon.category + ";")
         output.write("POLYGON((")
-         
+          
         coordinateStrings = []
         for coordinate in polygon.coordinates:
             cString = str(coordinate.longitude) + " " + str(coordinate.latitude)
             coordinateStrings.append(cString)
         if coordinateStrings[0] != coordinateStrings[len(coordinateStrings) - 1]:
             coordinateStrings.append(coordinateStrings[0])
-         
+          
         firstCoordinate = True
-         
+          
         for coordinateString in coordinateStrings:
             if firstCoordinate == True:
                 firstCoordinate = False
@@ -247,37 +230,37 @@ def saveAllPolygonsGis(polygons, fileName, printPrefixString = ""):
             output.write(coordinateString)
         output.write("))\n")
     output.close()
-    
-    print(printPrefixString + "Done...")
-
-def saveStationsPolygonsGis(stations, fileName, printPrefixString = ""):
      
+    print(printPrefixString + "Done...")
+ 
+def saveStationsPolygonsGis(stations, fileName, printPrefixString = ""):
+      
     print(printPrefixString + "Saving GIS information for station polygons to " + fileName + "...")
-    
+     
     polygons = []
-
+ 
     for station in stations:
         for p in station.polygons:
             polygons.append(p)
-     
+      
     # create output file
     output = open(fileName, 'w')
     output.write("id;category;polygon\n")
-     
+      
     for polygon in polygons:
         output.write(str(polygon.ID) + ";")
         output.write(polygon.category + ";")
         output.write("POLYGON((")
-         
+          
         coordinateStrings = []
         for coordinate in polygon.coordinates:
             cString = str(coordinate.longitude) + " " + str(coordinate.latitude)
             coordinateStrings.append(cString)
         if coordinateStrings[0] != coordinateStrings[len(coordinateStrings) - 1]:
             coordinateStrings.append(coordinateStrings[0])
-         
+          
         firstCoordinate = True
-         
+          
         for coordinateString in coordinateStrings:
             if firstCoordinate == True:
                 firstCoordinate = False
@@ -286,5 +269,5 @@ def saveStationsPolygonsGis(stations, fileName, printPrefixString = ""):
             output.write(coordinateString)
         output.write("))\n")
     output.close()
-    
+     
     print(printPrefixString + "Done...")
