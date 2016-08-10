@@ -3,6 +3,7 @@
 	<name>datadisc</name>
 	<comment></comment>
 	<projects>
+		<project>datapre</project>
 		<project>datapre-tools</project>
 	</projects>
 	<buildSpec>
