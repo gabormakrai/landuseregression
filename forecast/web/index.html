@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>York experimental No2 forecast</title>
+    <meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />	
+	
+	<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+	<script src="https://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>    
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+<script>
+
+	var map = null;
+	var polygons = {};
+	var polygonIdOrdered = [];
+	
+	var currentTimestamp = null;
+	var timestamps = [];
+	
+	var pollutionData = {};
+	
+	var pollutionMin = 0.0;
+	var pollutionMax = 200.0;
+	var colors = [];
+	
+	var grayscale = false;
+	
+	var infoWindow = null;
+	var currentGridCell = null;
+	
+	var reader = new FileReader();
+	
+	var timestampDownloadIndex = null;
+	
+	var monitoringStationMarkers = null;
+	var monitoringStationsOnMap = false;
+	var monitoringStationWindow = null;
+	
+	function initialize() {
+	
+		initializeColors();
+		
+		initializeLegend();
+		
+		initializeInfoWindow();
+		
+		var mapOptions = {
+			zoom: 13,
+			center: new google.maps.LatLng(53.96,-1.08),
+			disableDefaultUI: true,
+			panControl: true,
+			zoomControl: true,
+			mapTypeControl: true,
+			scaleControl: true,
+			streetViewControl: true,
+			overviewMapControl: false
+		};
+		
+	  	map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+		
+		getGridCells();	
+	}
+	
+	function initializeInfoWindow() {
+		infoWindow = new google.maps.InfoWindow;
+		google.maps.event.addListener(infoWindow,'closeclick',function() {
+			currentGridCell.setOptions({
+				strokeOpacity: 0.0,
+				strokeWeight: 0
+			});
+			currentGridCell = null;
+		});	
+	}
+	
+	function toogleGrayscale() {
+		grayscale = !grayscale;
+		initializeColors();
+		initializeLegend();
+		visualizePollutionLevel(currentTimestamp, false, true);
+	}
+	
+	function getCurrentTimestampPollutionlevel() {
+		getBlobData('~makrai/forecast/data/' + currentTimestamp + '.dat', function( data ) {
+			reader.readAsArrayBuffer(data);
+			reader.onload = getCurrentTimestampPollutionLevelCallback;
+		});
+	}
+	
+	function getCurrentTimestampPollutionLevelCallback() {
+		pollutionData[currentTimestamp] = {};
+		var u8 = new Uint8Array(reader.result);
+		for (var i = 0; i < polygonIdOrdered.length; ++i) {
+			var level = 0.0;
+			level += u8[i * 2] * 256.0;
+			level += u8[i * 2 + 1];
+			level /= 100.0;
+			pollutionData[currentTimestamp][polygonIdOrdered[i]] = level;
+		}
+		visualizePollutionLevel(currentTimestamp, true, false);
+	}
+	
+	function downloadAllPollutionData(index) {
+		if (index < 48) {
+			downloadPollutionData(index);
+		} else {
+			activateSliderAndGrayscaleCheckbox();
+		}
+	}
+	
+	function downloadPollutionData(index) {
+		timestampDownloadIndex = index;
+		getBlobData('~makrai/forecast/data/' + timestamps[index] + '.dat', function( data ) {
+			reader.readAsArrayBuffer(data);
+			reader.onload = downloadPollutionDataCallback;
+		});
+	}
+	
+	function downloadPollutionDataCallback() {
+		timestamp = timestamps[timestampDownloadIndex];
+		if (timestamp != currentTimestamp) {
+			pollutionData[timestamp] = {};
+			var u8 = new Uint8Array(reader.result);
+			for (var i = 0; i < polygonIdOrdered.length; ++i) {
+				var level = 0.0;
+				level += u8[i * 2] * 256.0;
+				level += u8[i * 2 + 1];
+				level /= 100.0;
+				pollutionData[timestamp][polygonIdOrdered[i]] = level;
+			}
+		}
+		downloadAllPollutionData(timestampDownloadIndex + 1);
+	}
+	
+	function initializeLegend() {
+		var c=document.getElementById("legend");
+		var ctx=c.getContext("2d");
+		var imgData=ctx.createImageData(256, 25);
+		
+		for (var x = 0; x < 256; ++x) {
+			var c = null;
+			if (grayscale) {
+				c = colors[x];
+			} else {
+				c = colors[x * 2];
+			}
+			
+			for (var y = 0; y < 25; ++y) {
+				var index = (y * 256 + x) * 4;
+				imgData.data[index + 0]=c.r;
+				imgData.data[index + 1]=c.g;
+				imgData.data[index + 2]=c.b;
+				imgData.data[index + 3]=205; // 205 = 255 * 0.8 -> 0.8 is the opacity level for the gMaps polygons
+			}
+		}
+		ctx.putImageData(imgData, 0, 0);	
+	}
+			
+	function visualizePollutionLevel(timestamp, addPolygonsToMap, recoloring) {
+		
+		if (recoloring == false && !addPolygonsToMap && currentTimestamp == timestamp) {
+			return;
+		}
+				
+		currentTimestamp = timestamp;
+		
+		if (currentGridCell != null) {
+			changeInfoWindowContent(pollutionData[currentTimestamp][currentGridCell.polygonId]);
+		}
+		
+		for (var id in pollutionData[timestamp]) {
+			var pollutionLevel = pollutionData[timestamp][id];
+			var color = calculateColor(pollutionLevel);
+			var colorString = rgbToHex(color.r, color.g, color.b);
+			polygons[id].setOptions({fillColor: colorString});
+			
+			if (addPolygonsToMap) {
+				polygons[id].setMap(map);
+			}
+		}
+		
+		if (addPolygonsToMap) {
+			downloadAllPollutionData(0);
+		}
+	}
+	
+	function getTimestamps() {
+		getJsonData('~makrai/forecast/gettime.php', function( data ) {
+			currentTimestamp = data["current"];
+			timestamps = data["all"];
+			initializeSlider();
+		});
+	}
+	
+	function timestampToString(timestamp) {
+		var year = timestamp.substring(0,4);
+		var month = timestamp.substring(4,6);
+		var day = timestamp.substring(6,8);
+		var hour = timestamp.substring(8,10);
+	
+		//return year + "-" + month + "-" + day + " " + hour + "h";
+		return day + "/" + month + "/" + year + " " + hour + "h";
+	}
+		
+	function getGridCells() {
+		getJsonData('~makrai/forecast/grid.json', function( data ) {
+		
+			data["cells"].forEach(function(cell) { 
+			
+			var coordinates = [
+			/*
+				{lat: cell["c1"]["latitude"], lng: cell["c1"]["longitude"]},
+				{lat: cell["c2"]["latitude"], lng: cell["c2"]["longitude"]},
+				{lat: cell["c3"]["latitude"], lng: cell["c3"]["longitude"]},
+				{lat: cell["c4"]["latitude"], lng: cell["c4"]["longitude"]}
+				*/
+				{lat: cell[1], lng: cell[2]},
+				{lat: cell[3], lng: cell[4]},
+				{lat: cell[5], lng: cell[6]},
+				{lat: cell[7], lng: cell[8]}
+			];
+			
+			var poly = new google.maps.Polygon({
+				paths: coordinates,
+				strokeColor: '#FF0000',
+				strokeOpacity: 0.0,
+				strokeWeight: 0,
+				fillColor: '#FF0000',
+				fillOpacity: 0.8,
+				/*polygonId: cell["id"]*/
+				polygonId: cell[0]
+			});
+		
+			poly.addListener('click', function(event) { 
+				/*showInfoWindow(cell["id"], event);*/
+				showInfoWindow(cell[0], event);
+			});
+		
+			/*polygons[cell["id"]] = poly;*/
+			polygons[cell[0]] = poly;
+			
+			/*polygonIdOrdered.push(parseInt(cell["id"]));*/
+			polygonIdOrdered.push(parseInt(cell[0]));
+			
+			});
+			
+			polygonIdOrdered.sort(function(a,b) { return a-b; });
+			
+			for (var i = 0; i < polygonIdOrdered.length; ++i) {
+				polygonIdOrdered[i] = "" + polygonIdOrdered[i];
+			}
+			
+			getTimestamps();
+		});
+	}
+	
+	function changeInfoWindowContent(pollutionLevel) {
+		var pollutionLevelString = "" + pollutionLevel;
+		pollutionLevelString = pollutionLevelString.substring(0,5);
+		infoWindow.setContent("Area information<br/>No2 concentration level: " + pollutionLevelString + " ug/m3");
+	}
+	
+	function showInfoWindow(polyId, event) {
+		if (currentGridCell != null) {
+			currentGridCell.setOptions({
+				strokeOpacity: 0.0,
+				strokeWeight: 0
+			});
+		}
+		currentGridCell = polygons[polyId];
+		
+		changeInfoWindowContent(pollutionData[currentTimestamp][polyId]);
+		
+		infoWindow.setPosition(event.latLng);
+		infoWindow.open(map);
+		
+		polygons[polyId].setOptions({
+			strokeColor: '#FF0000',
+			strokeOpacity: 1.0,
+			strokeWeight: 1
+		});
+	}
+	
+	function getJsonData(href, functionToExecute) {
+		var host = window.location.hostname;
+		var protocol = window.location.protocol;
+		var url = protocol + "//" + host + ":" + 443 + "/" + href;
+		
+		$.ajax({
+			url: url,
+			dataType: 'json'
+		}).done(functionToExecute).error(function(e) { console.log("error"); console.log(e); });
+	}
+	
+	function getBlobData(href, functionToExecute) {
+		var host = window.location.hostname;
+		var protocol = window.location.protocol;
+		var url = protocol + "//" + host + ":" + 443 + "/" + href;
+		
+		$.ajax({
+			url: url,
+			dataType: "binary",
+			type:"GET",
+			async: false
+		}).done(functionToExecute);
+	}	
+	
+	function componentToHex(c) { 
+		var hex = c.toString(16);
+		return hex.length == 1 ? "0" + hex : hex; 
+	}
+	
+	function rgbToHex(r, g, b) { 
+		return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b); 
+	}
+	
+	function initializeColors() {
+		
+		colors = [];
+		if (grayscale) {
+			for (var i = 0; i < 256; ++i) {
+				c = {r: 255 - i, g: 255 - i, b: 255 - i};
+				colors.push(c);
+			}		
+		} else {
+			for (var i = 0; i < 256; ++i) {
+				c = {r: i, g: 255, b: 0};
+				colors.push(c);
+			}
+			for (var i = 256; i < 512; ++i) {
+				c = {r: 255, g: 511 - i, b: 0};
+				colors.push(c);
+			}
+		}
+	}
+	
+	function calculateColor(pollutionLevel) {
+	
+		var index = -1;
+		
+		if (grayscale) {
+			index = Math.round((pollutionLevel - pollutionMin) / (pollutionMax - pollutionMin) * 256.0);
+			if (index > 255) {
+				index = 255;
+			} else if (index < 0) {
+				index = 0;
+			}
+		} else {
+			index = Math.round((pollutionLevel - pollutionMin) / (pollutionMax - pollutionMin) * 512.0);
+			if (index > 511) {
+				index = 511;
+			} else if (index < 0) {
+				index = 0;
+			}
+		}
+		
+		return colors[index];
+	}
+	
+	function activateSliderAndGrayscaleCheckbox() {
+		$( "#slider" ).slider("enable");
+		document.getElementById("grayscaleCheckbox").disabled = false;
+		downloadMonitoringStations();
+	}
+	
+	function toogleMonitoringStations() {
+		if (monitoringStationsOnMap) {
+			monitoringStationMarkers.forEach(function (station) {
+				station.setMap(null);
+			});
+			monitoringStationsOnMap = false;
+		} else {
+			monitoringStationMarkers.forEach(function (station) {
+				station.setMap(map);
+			});
+			monitoringStationsOnMap = true;
+		}
+	}
+	
+	function activateMonitoringStationCheckbox() {
+		document.getElementById("msCheckbox").disabled = false;
+	}
+	
+	function downloadMonitoringStations() {
+	
+		monitoringStationWindow = new google.maps.InfoWindow;
+	
+		getJsonData('~makrai/forecast/stations.json', function( data ) {
+			monitoringStationMarkers = [];
+			data["stations"].forEach(function(station) {
+			
+				var latLng = new google.maps.LatLng(station["latitude"], station["longitude"]);
+				
+				var marker = new google.maps.Marker({
+					position: latLng,
+					stationId: station["id"],
+					stationName: station["name"]
+				});
+				
+				marker.addListener('click', function(event) { 
+					monitoringStationWindow.open(map, marker);
+					var content = 'Station: <b>' + station["name"] + '</b><br/>';
+					content += '<a target="_blank" href="' + station["link"] + '">Click here for more information</a><br/>';
+					content += 'Click the image to zoom<br/>';
+					content += '<a href="data/history_' + station["name"].toLowerCase() + '.png" target="_blank"><img src="data/history_' + station["name"].toLowerCase() + '.png" width="250"/></a><br/>';
+					monitoringStationWindow.setContent(content);
+				});
+				
+				monitoringStationMarkers.push(marker);
+			});
+			activateMonitoringStationCheckbox();
+		});		
+	}
+	
+	function initializeSlider() {
+		
+		currentTimestampIndex = -1;
+		for (var i = 0; i < 48; ++i) {
+			if (currentTimestamp == timestamps[i]) {
+				currentTimestampIndex = i;
+				break;
+			}
+		}
+	
+	  	$( "#slider" ).slider({value: currentTimestampIndex, min: 0, max: 47});
+		$( "#slider" ).slider("disable");
+		
+		$( "#timestamp_first" ).html(timestampToString(timestamps[0]));
+		$( "#timestamp_last" ).html(timestampToString(timestamps[timestamps.length - 1]));
+		$( "#timestamp_current" ).html(timestampToString(currentTimestamp));
+		// calculate slider position
+		
+	  	$( "#slider" ).slider({
+	  	  change: function( event, ui ) {
+		    var timestampIndex = Math.round($( "#slider" ).slider( "option", "value" ));
+			var timestamp = timestamps[timestampIndex];
+			$( "#timestamp_current" ).html(timestampToString(timestamp));
+			visualizePollutionLevel(timestamp, false, false);
+	  	  },
+		  slide:function( event, ui ) {
+		    var timestampIndex = Math.round($( "#slider" ).slider( "option", "value" ));
+			var timestamp = timestamps[timestampIndex];
+			$( "#timestamp_current" ).html(timestampToString(timestamp));
+			visualizePollutionLevel(timestamp, false, false);
+	  	  }
+	  	});	  		
+		
+		getCurrentTimestampPollutionlevel();
+	}
+	
+	// start the page
+	
+	google.maps.event.addDomListener(window, 'load', initialize);
+	
+	 /*
+	 * jquery.binarytransport.js
+	 *
+	 * @description. jQuery ajax transport for making binary data type requests.
+	 * @version 1.0 
+	 * @author Henry Algus <henryalgus@gmail.com>
+	 *
+	 */
+ 
+	// use this transport for "binary" data type
+	$.ajaxTransport("+binary", function(options, originalOptions, jqXHR){
+		// check for conditions and support for blob / arraybuffer response type
+		if (window.FormData && ((options.dataType && (options.dataType == 'binary')) || (options.data && ((window.ArrayBuffer && options.data instanceof ArrayBuffer) || (window.Blob && options.data instanceof Blob)))))
+		{
+			return {
+				// create new XMLHttpRequest
+				send: function(headers, callback){
+			// setup all variables
+					var xhr = new XMLHttpRequest(),
+			url = options.url,
+			type = options.type,
+			async = options.async || true,
+			// blob or arraybuffer. Default is blob
+			dataType = options.responseType || "blob",
+			data = options.data || null,
+			username = options.username || null,
+			password = options.password || null;
+						
+					xhr.addEventListener('load', function(){
+				var data = {};
+				data[options.dataType] = xhr.response;
+				// make callback and send data
+				callback(xhr.status, xhr.statusText, data, xhr.getAllResponseHeaders());
+					});
+	 
+					xhr.open(type, url, async, username, password);
+					
+			// setup custom headers
+			for (var i in headers ) {
+				xhr.setRequestHeader(i, headers[i] );
+			}
+					
+					xhr.responseType = dataType;
+					xhr.send(data);
+				},
+				abort: function(){
+					jqXHR.abort();
+				}
+			};
+		}
+	});	
+	
+</script>
+
+<style>
+  html, body {
+	height: 100%;
+	width: 100%;
+	/*
+	margin: 0px;
+	padding: 0px;
+	*/
+ }
+  #map-canvas {
+	height: 80%;
+	width: 80%;
+	margin-right: auto; margin-left: auto;
+  }
+  #control-div {
+	/*
+	padding: 5px;
+	position: absolute;
+	background-color: rgba(255, 255, 255, 1.0);
+	top:0px;
+	left:0px;
+	*/
+	width: 100%;
+	height: 80px;
+	text-align: center;
+  }
+
+</style>
+
+</head>
+<body>
+	<div><center><h2>York (experimental) No2 map</h2></center></div>
+	
+	<div style="height:20px;"></div>
+	<center>
+		<div style="width:460px;display:inline-block;"">
+			<table border="0" cellpadding="5">
+			<tr>
+				<td><div id="timestamp_first" style="width:120px;"></div></td>
+				<td><div id="slider" style="width:200px;"></div></td>
+				<td><div id="timestamp_last" style="width:120px;"></div></td>
+			</tr>
+			<tr>
+				<td colspan="3"><center><div id="timestamp_current" style="width:440px;"></div></center></td>
+			</tr>
+			</table>	
+		</div>
+		
+		<div style="width:350px;display:inline-block;"">
+			<table border="0" cellpadding="5">
+			<tr>
+				<td>0.0 ug/m3</td>
+				<td><canvas id="legend" width="256" height="25">Your browser does not support the HTML5 canvas tag.</canvas></td>
+				<td>200.0 ug/m3</td>
+			</tr>
+			<tr>
+				<td colspan="3"><center><form><input type="checkbox" id="grayscaleCheckbox" disabled onClick="toogleGrayscale();">grayscale <input type="checkbox" id="msCheckbox" disabled onClick="toogleMonitoringStations();">stations </form></center></td>
+			</tr>
+			</table>	
+		</div>
+	</center>
+	<div style="height:20px;"></div>
+	
+	</div>
+	<div id="map-canvas"></div>
+	<div style="height:50px;"></div>
+	<div>
+		<p>Please visit the following links for more information:</p>
+		<ul>
+			<li><a href="userguide.html" target="_blank">User guide for this map and model description</a></li>
+			<li><a href="annual.html" target="_blank">Experimental annual no2 map for York</a></li>
+			<li><a href="http://www.yorair.co.uk/" target="_blank">JorAir - City of York Council's air quality website</a></li>
+			<li><a href="https://uk-air.defra.gov.uk/air-pollution/" target="_blank">About Air Pollution - Defra, UK</a></li>
+			<li><a href="http://ec.europa.eu/environment/air/quality/standards.htm" target="_blank">EU air quality standards</li>
+			<li><a href="http://www.york.ac.uk/yesi/capacitie/" target="_blank">Capacitie project</li>
+		</ul>
+	</div>	
+	<div style="height:50px;"></div>
+</body>
+</html>
+
