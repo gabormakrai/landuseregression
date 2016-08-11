@@ -271,3 +271,36 @@ def saveStationsPolygonsGis(stations, fileName, printPrefixString = ""):
     output.close()
      
     print(printPrefixString + "Done...")
+
+def multiplyLanduseData(inputFile, timestamps, outputfile, printPrefixString = ""):
+    
+    # open the file
+    print(printPrefixString + "Open osm polygon data file " + inputFile + " and open output file " + outputfile + "...")
+    
+    output = open(outputfile, 'w')
+    output.write("location,timestamp,leisure_area,landuse_area\n");    
+    
+    firstLine = True
+    # open the file
+    with open(inputFile) as infile:
+        # read line by line
+        for line in infile:
+            # skip the first line (header line)
+            if firstLine == True:
+                firstLine = False
+                continue
+            # remove newline character from the end
+            line = line.rstrip()
+            # split the line
+            splittedLine = line.split(',')
+            
+            for timestamp in timestamps:    
+                output.write(splittedLine[0]) # location
+                output.write(",")
+                output.write(timestamp.key)
+                output.write(",")
+                output.write(splittedLine[1]) # leisure_area
+                output.write(",")
+                output.write(splittedLine[2]) # landuse_area
+                output.write("\n")
+    output.close()
