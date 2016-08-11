@@ -1,4 +1,5 @@
 from sklearn.svm import SVR
+from sklearn.ensemble.bagging import BaggingRegressor
 
 class SVMModel:
     def __init__(self, model, modelColumns):
@@ -20,8 +21,9 @@ def trainSVM(data, columns, targetColumn, parameters):
             record.append(data[column][i])
 
         modelData.append(record)
-        
-    model = SVR(kernel='rbf', C=1e3, gamma=0.1)
+    
+    #model = BaggingRegressor(base_estimator=SVR(kernel='rbf', C=1e4,cache_size=5000), max_samples=4000,n_estimators=10, verbose=0, n_jobs=-1)
+    model = BaggingRegressor(base_estimator=SVR(kernel='rbf', C=parameters["C"], cache_size=5000), max_samples=parameters["max_samples"],n_estimators=parameters["n_estimators"], verbose=0, n_jobs=-1)
     
     model.fit (modelData, data[targetColumn])
     
