@@ -28,7 +28,7 @@ class Station:
 """
 Generate rectangles for a specific grid...
 """
-def generateGridStation(rectangleSize, latitudeNW, longitudeNW, latitudeSE, longitudeSE, outputFile, printPrefixString = ""):
+def generateGridStationRectangles(rectangleSize, latitudeNW, longitudeNW, latitudeSE, longitudeSE, outputFile, printPrefixString = ""):
     
     print(printPrefixString + "Generating rectangles for the grid...")
     
@@ -81,17 +81,28 @@ def generateGridStation(rectangleSize, latitudeNW, longitudeNW, latitudeSE, long
             
     print(printPrefixString + "\t#stations: " + str(len(stations)))
     
+    print(printPrefixString + "Saving rectangles to " + outputFile + "...")
+    
     # create output file
     output = open(outputFile, 'w')
-    output.write("id,name,latitude,longitude\n")
+    output.write("id,name,nw_latitude,nw_longitude,ne_latitude,ne_longitude,se_latitude,se_longitude,sw_latitude,sw_longitude\n")
     
     for station in stations:
         output.write(str(station.ID) + ",")
         output.write(str(station.name) + ",")
-        output.write(str(station.latitude) + ",")
-        output.write(str(station.longitude) + "\n")
+        output.write(str(station.northWestCorner.latitude) + ",")
+        output.write(str(station.northWestCorner.longitude) + ",")
+        output.write(str(station.northEastCorner.latitude) + ",")
+        output.write(str(station.northEastCorner.longitude) + ",")
+        output.write(str(station.southEastCorner.latitude) + ",")
+        output.write(str(station.southEastCorner.longitude) + ",")
+        output.write(str(station.southWestCorner.latitude) + ",")
+        output.write(str(station.southWestCorner.longitude) + "\n")
         
     output.close()
+    
+    print(printPrefixString + "Done...")
+    
                 
 """
 This function is creating buffer rectangles for each air quality monitoring
@@ -130,7 +141,7 @@ def createStationRectangles(rectangleSize, stationFile, outputFile, outputGISFil
     # function that calculates the buffer rectangle corners
     def addCorners(station):
         coordinate = WGS84Coordinate(station.latitude, station.longitude)
-        delta = 0.001
+        delta = 0.0001
         mapCoordinate = coordinate.toMapCoordinate()
         #print("mC: " + mapCoordinate.toString())
         mapCoordinateX = MapCoordinate(mapCoordinate.x + delta, mapCoordinate.y)
@@ -233,3 +244,67 @@ def loadRectangles(rectangles, inputRectangleFile, printPrefixString = ""):
     
     print(printPrefixString + "#rectangles: " + str(len(rectangles)))
     print(printPrefixString + "Done...")
+
+def createJsonFile(rectangleFile, outputFile, printPrefixString = ""):
+    
+    print(printPrefixString + "loading rectangles from file " + rectangleFile + "...")
+    
+    rectangles = []
+    loadRectangles(rectangles, rectangleFile, printPrefixString + "\t") 
+    
+    print(printPrefixString + "done...")
+    
+    print(printPrefixString + "create json file and write it to " + outputFile + "...")
+    
+    # create output file
+    output = open(outputFile, 'w')
+    output.write('{ "cells": [\n');
+    
+    firstRecord = True
+    
+    for station in rectangles:
+        
+        if firstRecord == True:
+            firstRecord = False
+        else:
+            output.write(",\n")
+        
+#         output.write("{")
+#         output.write('"id": ' + str(station.ID) + ",")
+#         output.write('"c1": {"latitude":')
+#         output.write(str(station.cornerNW.toWGS84Coordinate().latitude)[0:7] + ",")
+#         output.write('"longitude":')
+#         output.write(str(station.cornerNW.toWGS84Coordinate().longitude)[0:7] + "},")
+#         
+#         output.write('"c2": {"latitude":')
+#         output.write(str(station.cornerNE.toWGS84Coordinate().latitude)[0:7] + ",")
+#         output.write('"longitude":')
+#         output.write(str(station.cornerNE.toWGS84Coordinate().longitude)[0:7] + "},")
+#         
+#         output.write('"c3": {"latitude":')
+#         output.write(str(station.cornerSE.toWGS84Coordinate().latitude)[0:7] + ",")
+#         output.write('"longitude":')
+#         output.write(str(station.cornerSE.toWGS84Coordinate().longitude)[0:7] + "},")
+#         
+#         output.write('"c4": {"latitude":')
+#         output.write(str(station.cornerSW.toWGS84Coordinate().latitude)[0:7] + ",")
+#         output.write('"longitude":')
+#         output.write(str(station.cornerSW.toWGS84Coordinate().longitude)[0:7] + "}}")
+
+        output.write("[")
+        output.write(str(station.ID) + ",")
+        output.write(str(station.cornerNW.toWGS84Coordinate().latitude)[0:7] + ",")
+        output.write(str(station.cornerNW.toWGS84Coordinate().longitude)[0:7] + ",")
+        output.write(str(station.cornerNE.toWGS84Coordinate().latitude)[0:7] + ",")
+        output.write(str(station.cornerNE.toWGS84Coordinate().longitude)[0:7] + ",")
+        output.write(str(station.cornerSE.toWGS84Coordinate().latitude)[0:7] + ",")
+        output.write(str(station.cornerSE.toWGS84Coordinate().longitude)[0:7] + ",")
+        output.write(str(station.cornerSW.toWGS84Coordinate().latitude)[0:7] + ",")
+        output.write(str(station.cornerSW.toWGS84Coordinate().longitude)[0:7] )
+        output.write("]")
+        
+    output.write(']}\n');
+    output.close()
+    
+    print(printPrefixString + "done...")
+    
