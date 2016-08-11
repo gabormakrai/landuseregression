@@ -52,6 +52,22 @@ def generateTimestamps(year):
                 timestamps.append(t)
     return timestamps
 
+def generateTimestampsForMonth(year, month):
+    timestamps = []
+    for day in range(1, DAYS_OF_MONTH[month - 1] + 1):
+        for hour in range(0, 24):
+            t = Timestamp().createBasedOnOther(year, month, day, hour)
+            timestamps.append(t)
+    return timestamps
+
+def generateTimestampsForDays(year, month, day1, day2):
+    timestamps = []
+    for day in range(day1, day2 + 1):
+        for hour in range(0, 24):
+            t = Timestamp().createBasedOnOther(year, month, day, hour)
+            timestamps.append(t)
+    return timestamps    
+
 def generateDatesStringForYear(year):
     dates = []
     for month in range(1, 13):
