@@ -25,6 +25,9 @@ def correlationEval(targetData, predictionData):
     stddevTarget = math.sqrt(varianceTarget)
     stddevPrediction = math.sqrt(variancePrediction)
     
-    r = r / (stddevTarget * stddevPrediction)
+    if (stddevPrediction * stddevTarget < 0.000000001):
+        r = 0.5
+    else:
+        r = r / (stddevTarget * stddevPrediction)
     
     return ["r", r]
