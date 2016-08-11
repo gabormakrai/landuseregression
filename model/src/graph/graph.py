@@ -74,7 +74,8 @@ def doHourlyErrorBar(fileName, title, xAxis, yAxis, names, result, colors):
 
     def autolabel(rects):
         for rect in rects:
-            h = rect.get_height()
+            rect.get_height()
+#            h = rect.get_height()
 #            ax.text(rect.get_x()+rect.get_width()/2., 1.05*h, '%d'%int(h), ha='center', va='bottom')
 
     for rect in rectangles:
