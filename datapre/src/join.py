@@ -1,5 +1,5 @@
 
-def joinFiles(inputFiles, outputFile, printPrefixString = ""):
+def joinFiles(inputFiles, outputFile, skipTarget, printPrefixString = ""):
     
     print(printPrefixString + "Joining data in preprocessed files (join on location+timestamp, target: nox)...")
     
@@ -49,10 +49,14 @@ def joinFiles(inputFiles, outputFile, printPrefixString = ""):
     print(printPrefixString + "Writing out data to " + outputFile + "...")
     
     output = open(outputFile, 'w')
-    # header 
-    output.write("location,timestamp,nox")
+    # header
+    if skipTarget == True: 
+        output.write("location,timestamp")
+    else:
+        output.write("location,timestamp,target")
+        
     for column in columns:
-        if column != "location" and column != "timestamp" and column != "nox":
+        if column != "location" and column != "timestamp" and column != "target":
             output.write(",")
             output.write(column)
     output.write("\n")
@@ -69,10 +73,11 @@ def joinFiles(inputFiles, outputFile, printPrefixString = ""):
             output.write(location)
             output.write(",")
             output.write(timestamp)
-            output.write(",")
-            output.write(data[location][timestamp]["nox"])
+            if skipTarget == False:
+                output.write(",")
+                output.write(data[location][timestamp]["target"])
             for column in columns:
-                if column != "location" and column != "timestamp" and column != "nox":
+                if column != "location" and column != "timestamp" and column != "target":
                     output.write(",")
                     #print(location + "," + timestamp)
                     output.write(data[location][timestamp][column])
