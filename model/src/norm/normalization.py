@@ -21,8 +21,12 @@ class Normalization:
         for column in data:
             minValue = self.min[column]
             maxValue = self.max[column]
-            for i in range(0, len(data[column])):
-                data[column][i] = (data[column][i] - minValue) / (maxValue - minValue)
+            if (maxValue == minValue):
+                for i in range(0, len(data[column])):
+                    data[column][i] = 0.0
+            else:
+                for i in range(0, len(data[column])):
+                    data[column][i] = (data[column][i] - minValue) / (maxValue - minValue)
                 
         for column in data:
             minValue = float("inf")
@@ -38,9 +42,13 @@ class Normalization:
         
         minValue = self.min[targetColumn]
         maxValue = self.max[targetColumn]
-        
-        for i in range(0, len(data)):
-            data[i] = data[i] * (maxValue - minValue) + minValue
+
+        if (minValue == maxValue):
+            for i in range(0, len(data)):
+                data[i] = maxValue
+        else:        
+            for i in range(0, len(data)):
+                data[i] = data[i] * (maxValue - minValue) + minValue
         
     def __str__(self):
         return "Normalization"
