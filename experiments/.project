@@ -3,6 +3,8 @@
 	<name>experiments</name>
 	<comment></comment>
 	<projects>
+		<project>datapre</project>
+		<project>datapre-tools</project>
 		<project>model</project>
 	</projects>
 	<buildSpec>
