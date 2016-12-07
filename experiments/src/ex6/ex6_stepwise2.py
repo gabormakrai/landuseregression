@@ -1,8 +1,5 @@
-import numpy as np
-import sys
 from data.data import loadData
 from crossvalidation import findOutKForValidation, splitDataForXValidation2
-from error import raeEval
 from sklearn.ensemble.forest import RandomForestRegressor
 from copy import deepcopy
 from eval.rmse import rmseEval
