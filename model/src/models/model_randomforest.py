@@ -21,9 +21,9 @@ def trainRandomForest(data, columns, targetColumn, parameters):
 
         modelData.append(record)
     if "depth" in parameters:
-        model = RandomForestRegressor(max_depth = parameters["depth"], n_estimators = parameters["estimators"], n_jobs = -1)
+        model = RandomForestRegressor(max_depth = parameters["depth"], n_estimators = parameters["estimators"], n_jobs = -1, random_state=42)
     elif "leaf" in parameters:
-        model = RandomForestRegressor(min_samples_leaf = parameters["leaf"], n_estimators = parameters["estimators"], n_jobs = -1)
+        model = RandomForestRegressor(min_samples_leaf = parameters["leaf"], n_estimators = parameters["estimators"], n_jobs = -1, random_state=42)
     
     model.fit (modelData, data[targetColumn])
     
