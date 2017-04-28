@@ -36,7 +36,7 @@ def joinFiles(inputFiles, outputFile, skipTarget, printPrefixString = ""):
                 # split the line
                 splittedLine = line.split(',')
         
-                location = splittedLine[headersDictionary["location"]]
+                location = str(float(splittedLine[headersDictionary["location"]]))
                 if location not in data:
                     data[location] = {}
                 timestamp = splittedLine[headersDictionary["timestamp"]]
