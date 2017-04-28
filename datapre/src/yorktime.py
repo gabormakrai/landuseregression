@@ -2,7 +2,7 @@ from Timestamp import generateTimestamps
 from rectangles import loadRectangles
 from datetime import datetime
 
-def createTimeFile(timestamps, inputRectangleFile, outputFile, printPrefixString = "", binned=False):
+def createTimeFile(timestamps, inputRectangleFile, outputFile, printPrefixString = "", binned=False, yorkSpecific=True):
          
     bankHolidays = set([
         "20120102", "20120406", "20120409", "20120507", "20120604", "20120605", "20120827", "20121225", "20121226",
@@ -39,7 +39,11 @@ def createTimeFile(timestamps, inputRectangleFile, outputFile, printPrefixString
     
     output = open(outputFile, 'w')
     if binned==False:
-        output.write("location,timestamp,hour,day_of_week,month,bank_holiday,race_day\n")
+        output.write("location,timestamp,hour,day_of_week,month,bank_holiday")
+        if yorkSpecific == True:
+            output.write(",race_day\n")
+        else:
+            output.write("\n")
     else:
         output.write("location,timestamp")
         for i in range(0, 24):
@@ -48,7 +52,11 @@ def createTimeFile(timestamps, inputRectangleFile, outputFile, printPrefixString
             output.write(",day_of_week" + str(i))
         for i in range(0, 12):
             output.write(",month" + str(i))
-        output.write(",bank_holiday,race_day\n")
+        output.write(",bank_holiday")
+        if yorkSpecific == True:
+            output.write(",race_day\n")
+        else:
+            output.write("\n")
     
     for rectangle in rectangles:
         for timestamp in timestamps:
