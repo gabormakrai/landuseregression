@@ -1,6 +1,6 @@
 import json
 from urllib.request import urlopen
-from rectangles import loadRectangles
+from rectangles import loadRectangles, Station
 from time import sleep
 import os
 
@@ -156,6 +156,27 @@ def downloadWeatherDataFromWunderground(apiKey, country, city, dates, outputDire
             print(printPrefixString + "File " + outputFile + " does exist...")
         else:
             url = "http://api.wunderground.com/api/" + apiKey + "/history_" + d + "/q/" + country + "/" + city + ".json"
+            print(printPrefixString + "Downloading " + url + "...")
+            response = urlopen(url).read().decode("utf-8")
+            data = str(response)
+            print(printPrefixString + "Saving date to " + outputFile + "...")
+            output = open(outputFile, 'w')
+            output.write(data)
+            output.close()
+            print(printPrefixString + "Done...")
+            sleep(sleepTime)
+
+def downloadWeatherDataFromWundergroundWithCoordinates(apiKeys, latitude, longitude, dates, filePrefix, sleepTime, printPrefixString = ""):
+    keyIndex = 0
+    for d in dates:
+        outputFile = filePrefix + d + ".json"
+        # if outputFile exist then skip the process
+        if os.path.isfile(outputFile):
+            print(printPrefixString + "File " + outputFile + " does exist...")
+        else:
+            apiKey = apiKeys[keyIndex]
+            keyIndex = (keyIndex + 1) % len(apiKeys)
+            url = "http://api.wunderground.com/api/" + apiKey + "/history_" + d + "/q/" + str(latitude) + "," + str(longitude) + ".json"
             print(printPrefixString + "Downloading " + url + "...")
             response = urlopen(url).read().decode("utf-8")
             data = str(response)
@@ -413,4 +434,197 @@ def appendForecastData(timestamps, inputFile, rectangleFile, outputFile, printPr
             output.write("\n")
         
     output.close()
+
+def downloadWUDataForStations(apiKeys, stationFile, dates, outputDirectory, printPrefixString = ""):
+    stations = []
     
+    print(printPrefixString + "Loading " + stationFile + " station file...")
+    
+    firstLine = True
+    # open the file
+    with open(stationFile) as infile:
+        # read line by line
+        for line in infile:
+            # skip the first line (header line)
+            if firstLine == True:
+                firstLine = False
+                continue
+            # remove newline character from the end
+            line = line.rstrip()
+            # split the line
+            splittedLine = line.split(',')
+            station = Station(splittedLine[0], splittedLine[1], splittedLine[2], splittedLine[3])
+            stations.append(station)
+            
+    print(printPrefixString + "#stations: " + str(len(stations)))
+    print(printPrefixString + "Done...")
+    
+    print(printPrefixString + "Download wu data...")
+    for station in stations:
+        downloadWeatherDataFromWundergroundWithCoordinates(
+            apiKeys, 
+            station.latitude, 
+            station.longitude, 
+            dates, 
+            outputDirectory + str(station.ID) + "_" , 
+            7.0 / len(apiKeys), 
+            "\t\t")
+    print(printPrefixString + "Done...")
+
+def processWUDataLocation(inputDirectory, outputFile, printPrefixString = "", fileList = None, binned=False):
+        
+    weatherData = {}
+    
+    if fileList == None:
+        fileNames = next(os.walk(inputDirectory))[2]
+    else:
+        fileNames = fileList
+        
+    for fileName in fileNames:
+        
+        location = int(fileName[0:fileName.index("_")])
+        
+        if location not in weatherData:
+            weatherData[location] = {}
+        
+        absoluteFileName = inputDirectory + fileName
+        with open(absoluteFileName, encoding='utf-8') as data_file:
+            data = json.loads(data_file.read())
+      
+        if "history" not in data:
+            continue
+      
+        observations = len(data['history']['observations'])
+        
+        for o in range(0, observations):
+            hour = str(data['history']['observations'][o]['date']['hour'])
+            day = str(data['history']['observations'][o]['date']['mday'])
+            month = str(data['history']['observations'][o]['date']['mon'])
+            year = str(data['history']['observations'][o]['date']['year'])
+            timestampKey = year + month + day + hour
+                        
+            winddirection = str(data['history']['observations'][o]['wdird'])
+            windspeed = str(data['history']['observations'][o]['wspdm'])
+            temperature = str(data['history']['observations'][o]['tempm'])
+            rain = str(data['history']['observations'][o]['rain'])
+            pressure = str(data['history']['observations'][o]['pressurem'])
+            humidity = str(data['history']['observations'][o]['hum'])
+            
+            wData = {}
+            wData['winddirection'] = winddirection
+            wData['windspeed'] = windspeed
+            wData['temperature'] = temperature
+            wData['rain'] = rain
+            wData['pressure'] = pressure
+            wData['humidity'] = humidity
+            
+            weatherData[location][timestampKey] = wData
+                
+    output = open(outputFile, 'w')
+    if binned==False:
+        output.write("location,timestamp,winddirection,windspeed,temperature,humidity,rain,pressure\n")
+    else:
+        output.write("location,timestamp,")
+        for i in range(0, 12):
+            output.write("winddirection" + str(i) + ",")
+        for i in range(0, 8):
+            output.write("windspeed" + str(i) + ",")
+        for i in range(0, 6):
+            output.write("temperature" + str(i) + ",")
+        for i in range(0, 10):
+            output.write("humidity" + str(i) + ",")
+        for i in range(0,2):
+            output.write("rain" + str(i) + ",")
+        output.write("pressure0")
+        for i in range(1, 8):
+            output.write(",pressure" + str(i))
+        output.write("\n")
+        
+    for location in weatherData:
+        wData = weatherData[location]
+        
+        for timestamp in wData:
+            data = wData[timestamp]
+    
+            if data['pressure'] == "":
+                continue
+            if data['humidity'] == "":
+                continue
+            if float(data['pressure']) < 800 or float(data['pressure']) > 1200:
+                continue
+            if data['winddirection'] == "":
+                continue
+            if data['windspeed'] == "":
+                continue
+            if data['rain'] == "":
+                continue
+            try:
+                float(data['humidity'])
+            except:
+                continue
+        
+            output.write(str(float(location)))
+            output.write(",")
+            output.write(timestamp)
+            
+            if binned == False:
+            
+                output.write(",")
+                output.write(data['winddirection'])
+                output.write(",")
+                output.write(data['windspeed'])
+                output.write(",")
+                output.write(data['temperature'])
+                output.write(",")
+                output.write(data['humidity'])
+                output.write(",")
+                output.write(data['rain'])
+                output.write(",")
+                output.write(data['pressure'])
+                output.write("\n")
+            else:
+                # winddirection (30 degrees -> 12 variables)
+                category = int(float(data['winddirection']) / 30.0)
+                for i in range(0, 12):
+                    if i == category:
+                        output.write(",1")
+                    else:
+                        output.write(",0")
+                # windspeed (5 m/s bins -> 8 variables)
+                category = int(float(data['windspeed']) / 5.0)
+                for i in range(0, 8):
+                    if i == category:
+                        output.write(",1")
+                    else:
+                        output.write(",0")
+                # temperature (6 celsius degrees -> 6 variables)
+                category = int(float(data['temperature']) / 5.0)
+                for i in range(0, 6):
+                    if i == category:
+                        output.write(",1")
+                    else:
+                        output.write(",0")
+                # humidity
+                category = int(float(data['humidity']) / 10.0)
+                for i in range(0, 10):
+                    if i == category:
+                        output.write(",1")
+                    else:
+                        output.write(",0")
+                # rain
+                category = int(data['rain'])
+                for i in range(0, 2):
+                    if i == category:
+                        output.write(",1")
+                    else:
+                        output.write(",0")
+                # pressure
+                category = int((float(data['pressure']) - 955.0) / 10.0)
+                for i in range(0, 8):
+                    if i == category:
+                        output.write(",1")
+                    else:
+                        output.write(",0")
+                output.write("\n")
+    
+    output.close()
