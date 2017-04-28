@@ -22,9 +22,9 @@ def trainDecisionTree(data, columns, targetColumn, parameters):
 
         modelData.append(record)
     if "depth" in parameters:
-        model = DecisionTreeRegressor(max_depth = parameters["depth"])
+        model = DecisionTreeRegressor(max_depth = parameters["depth"], random_state=42)
     elif "leaf" in parameters:
-        model = DecisionTreeRegressor(min_samples_leaf = parameters["leaf"])
+        model = DecisionTreeRegressor(min_samples_leaf = parameters["leaf"], random_state=42)
     
     model.fit (modelData, data[targetColumn])
     
