@@ -218,3 +218,75 @@ def downloadYorkAirqualityData(firstTimestamp, lastTimestamp, rectangleFile, pri
             except:
                 continue
     return aqData
+
+def processAurnFiles(years, rectangleFile, inputDirectory, printPrefixString = ""):
+        
+    data = {}
+    
+    rectangles = []
+    loadRectangles(rectangles, rectangleFile, printPrefixString)
+    
+    for rectangle in rectangles:
+        data[rectangle.ID] = {}
+    
+    for year in years:
+        for rectangle in rectangles:
+            
+            fileName = inputDirectory + str(rectangle.ID) + "_" + str(year) + ".csv"
+            
+            print(printPrefixString + "Load data from " + fileName + "...")
+            
+            loadAurnFile(fileName, data[rectangle.ID])
+    
+    return data
+            
+    
+def loadAurnFile(fileName, data):
+
+    if os.path.exists(fileName) == False:
+        return
+
+    firstLine = True
+    
+    pollutantColumn = 3
+    
+    # open the file
+    with open(fileName) as infile:
+        # read line by line
+        for line in infile:
+            # skip the first line (header line)
+            
+            # remove newline character from the end
+            line = line.rstrip()
+             
+            # split the line
+            splittedLine = line.split(',')
+
+            if firstLine == True:                    
+                firstLine = False
+                continue
+            
+            # create date: 01/01/2013 01:00
+            
+            dateTime = splittedLine[2].split(" ")            
+            
+            if len(splittedLine[0]) < 1:
+                continue
+            
+            hour = int(dateTime[1][0:2])
+                        
+            if hour < 10:
+                hourString = "0" + str(hour)
+            else:
+                hourString = str(hour)
+            timestampString = dateTime[0][6:10] + dateTime[0][3:5] + dateTime[0][0:2] + hourString
+            
+            if len(splittedLine[pollutantColumn]) < 1:
+                continue
+            
+            try:
+                data[timestampString] = float(splittedLine[pollutantColumn])
+            except:
+                pass
+
+
