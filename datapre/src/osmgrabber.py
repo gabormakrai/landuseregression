@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 import wget
 from WGS84Coordinate import WGS84Coordinate
 import os
+from osmpolygons import saveAllPolygonsGis
 
 class OsmPolygonVersion:
     def __init__(self, ID, category):
@@ -95,7 +96,7 @@ def getPolygonsFromFile(fileName, polygons, polygonsWithHistory, keys, coordinat
                 isInteresting = True
         if isInteresting == False:
             continue
-        if version == "1":
+        if version == "1" or polygonsWithHistory == None:
             polygonCoordinates = []
             for nd in way.findall('nd'):
                 ID = str(nd.get('ref'))
@@ -291,7 +292,7 @@ def matchCoordinates(polygons, coordinates):
 
 def writeOutPolygons(fileName, polygons):
     output = open(fileName, 'w')
-    output.write("id;category,date,shape\n")
+    output.write("id,category,date,shape\n")
     for polyId in polygons:
         polygon = polygons[polyId]
         for i in range(0, polygon.versions):
@@ -398,3 +399,91 @@ def writeOutYearPolygons(inputPolygonFile, year, fileName, gisFileName, printPre
     output.close()
     outputGis.close()
     
+def getPolygonsWithoutHistoryFromOSM(inputOSMDirectory, outputFile, printPrefixString = "", keys = ("landuse", "leisure", "natural")):
+     
+    print(printPrefixString + "Opening directory " + inputOSMDirectory + " for osm files...")
+         
+    polygonsList = []
+    coordinatesList = []
+
+    polygons = {}
+    coordinates = {}
+         
+    fileNames = next(os.walk(inputOSMDirectory))[2]
+    fileNames2 = sorted(fileNames)
+    for fileName in fileNames2:
+        absoluteFileName = inputOSMDirectory + fileName
+        print("\r" + printPrefixString + "processing file: " + absoluteFileName + "                        ", end = "")
+        getPolygonsFromFile(absoluteFileName, polygons, None, keys, coordinates)
+        if len(polygons) > 50000:
+            polygonsList.append(polygons)
+            coordinatesList.append(coordinates)
+            polygons = {}
+            coordinates = {}
+            polyCounter = 0
+            for p in polygonsList:
+                polyCounter = polyCounter + len(p)
+            print("current:" + str(polyCounter))
+         
+    print("\r" + printPrefixString + "Loading files is done...                                              ")
+    print(printPrefixString + "merging polygons...")
+    
+    for ps in polygonsList:
+        for p in ps: 
+            polygons[p] = ps[p]
+    for cs in coordinatesList:
+        for c in cs: 
+            coordinates[c] = cs[c]
+    
+    print(printPrefixString + "#polygons: " + str(len(polygons)))
+    print(printPrefixString + "#coordinates: " + str(len(coordinates)))
+    
+    # write out polygons
+    print(printPrefixString + "Write out polygons to " + outputFile + "...")
+    writeOutPolygons(outputFile, polygons)
+    print(printPrefixString + "Done...")
+        
+def getPolygonCategoriesFromOSM(inputOSMDirectory, outputFile, printPrefixString = ""):
+     
+    print(printPrefixString + "Opening directory " + inputOSMDirectory + " for osm files...")
+         
+    categories = {}
+         
+    fileNames = next(os.walk(inputOSMDirectory))[2]
+    fileNames2 = sorted(fileNames)
+    for fileName in fileNames2:
+        absoluteFileName = inputOSMDirectory + fileName
+        print("\r" + printPrefixString + "processing file: " + absoluteFileName + ", #c:" + str(len(categories)) + "                        ", end = "")
+        getPolygonCategoriesFromFile(absoluteFileName, categories)
+    
+    categoriesList = []
+    for c in categories:
+        if categories[c] > 10:
+            categoriesList.append(c)
+
+    sorted(categoriesList)
+    
+    output = open(outputFile, 'w')
+    output.write("category,freq\n")
+    for c in categoriesList:
+        output.write(str(c) + "," + str(categories[c]) + "\n")
+    
+    output.close()
+        
+def getPolygonCategoriesFromFile(fileName, categories):
+        
+    parser = ET.XMLParser(encoding="utf-8")
+    tree = ET.parse(fileName, parser = parser)
+    root = tree.getroot()
+         
+    for way in root.findall('way'):
+        keyValue = ""
+        for tag in way.findall('tag'):
+            keyValue = tag.get("k") + "/" + tag.get("v")
+            keyValue = keyValue.replace(",","_")
+            if keyValue not in categories:
+                categories[keyValue] = 1
+            else:
+                f = categories[keyValue]
+                f = f + 1
+                categories[keyValue] = f
