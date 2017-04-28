@@ -96,16 +96,16 @@ print("Done...")
      
 # remove everything from the output folder
 print("Remove all files from output directory " + OUTPUT_DIRECTORY)
-       
+        
 files = glob.glob(OUTPUT_DIRECTORY + '*')
 for f in files:
     os.remove(f)
-       
+        
 print("Done...")
-       
+        
 print("Download today's weather history...")
 # download today's weather history
-          
+           
 downloadWeatherDataFromWunderground(
     wuKey, 
     "UK", 
@@ -114,18 +114,18 @@ downloadWeatherDataFromWunderground(
     DATA_DIRECTORY + "", 
     8.0,
     "\t")
-          
+           
 # rename the downloaded file
-          
+           
 print("\tRenaming " + DATA_DIRECTORY + "york_" + todayString + ".json" + " to " + DATA_DIRECTORY + "wu_history.json")
-          
+           
 os.rename(DATA_DIRECTORY + "york_" + todayString + ".json", DATA_DIRECTORY + "wu_history.json")
-          
+           
 print("Done...")
-          
+           
 print("Downloading today's + tomorrow's weather forecast...")
 # download forecast for today/tomorrow
-          
+           
 downloadWeatherForecastFromWunderground(
     wuKey, 
     "UK", 
@@ -133,12 +133,12 @@ downloadWeatherForecastFromWunderground(
     DATA_DIRECTORY + "wu_forecast.json", 
     8.0, 
     "\t")
-          
+           
 print("Done...")
-       
+        
 print("Process weather data...")
 # generate weather data
-        
+         
 processWUData(
     historyTimestamps,
     DATA_DIRECTORY, 
@@ -146,16 +146,16 @@ processWUData(
     DATA_DIRECTORY + "weather.csv", 
     "\t",
     ["wu_history.json"])
-       
+        
 appendForecastData(
     forecastTimestamps, 
     DATA_DIRECTORY + "wu_forecast.json", 
     DATAPRE_DIRECTORY + "grid_rectangles.csv", 
     DATA_DIRECTORY + "weather.csv", 
     "\t")
-       
+        
 print("Done...")      
-       
+        
 # generate time related data
 print("Generating time related data...")
 createTimeFile(
@@ -163,9 +163,9 @@ createTimeFile(
     DATAPRE_DIRECTORY + "grid_rectangles.csv",
     DATA_DIRECTORY + "yorktime.csv",
     "\t")
-          
+           
 print("Done...")
-       
+        
 # generate topo data
 print("Generating topo data...")
 multiplyBuildingData(
@@ -174,7 +174,7 @@ multiplyBuildingData(
     DATA_DIRECTORY + "topo_timestamp.csv", 
     "\t")
 print("Done...")
-       
+        
 # generate landuse data
 print("Generating osm landuse data...")
 multiplyLanduseData(
@@ -183,7 +183,7 @@ multiplyLanduseData(
     DATA_DIRECTORY + "osmlanduse.csv", 
     "\t")
 print("Done...")
-       
+        
 # generate traffic data
 print("Generating traffic data...")
 addTimestampToTraffic(
@@ -191,7 +191,7 @@ addTimestampToTraffic(
     DATAPRE_DIRECTORY + "traffic.csv", 
     DATA_DIRECTORY + "traffic.csv", 
     "\t")
-       
+        
 # join the data
 print("Joining preprocessed files...")
 filesToJoin = [
@@ -200,58 +200,59 @@ filesToJoin = [
     DATA_DIRECTORY + "osmlanduse.csv",
     DATA_DIRECTORY + "weather.csv",
     DATA_DIRECTORY + "yorktime.csv"]
-             
+              
 joinFiles(
     filesToJoin,
     DATA_DIRECTORY + "data.csv",
     True,
     "\t")
 print("Done...")
-     
+      
 # learn the model
 trainDataFile = DATAPRE_DIRECTORY + "data_hour_2015.csv"
 print("Load the data for training the model from " + trainDataFile + "...")
 trainData = {}
 trainColumns = []
 loadData(trainDataFile, ["location", "timestamp"], trainData, trainColumns)
-      
+       
 print("Done...")
-      
+       
 print("Train the model...")
-      
+       
 model = trainRandomForest(trainData, trainColumns, "target", {'estimators': 59, 'leaf': 9})
-      
+       
 print("Done...")
-     
+      
 # apply model on the joined data
-     
+      
 applyDataFile = DATA_DIRECTORY + "data.csv"
-     
+      
 print("Load data the prepared data from " + applyDataFile + "...")
 applyData = {}
 applyColumns = []
 loadData(applyDataFile, [], applyData, applyColumns)
 print("Done...")
-     
+      
 print("Apply the model...")
-     
+      
 predictionData = applyRandomForest(applyData, model, {'estimators': 59, 'leaf': 9})
-     
+      
 print("Done...")
-     
+      
 # generate output
-     
+      
 print("Generate output...")
-     
+      
 finalData = {}
 for timestamp in timestamps:
     finalData[timestamp.key] = {}
-     
+      
 for i in range(0, len(predictionData)):
     location = str(int(applyData["location"][i]))
     timestamp = str(int(applyData["timestamp"][i]))
     value = predictionData[i]
     finalData[timestamp][location] = value
+    
 # # json data output      
 # for timestamp in timestamps:
 #     fileName = OUTPUT_DIRECTORY + timestamp.key + ".json"
@@ -267,7 +268,7 @@ for i in range(0, len(predictionData)):
 #         output.write('{"id":' + location + ',"v":' + str(finalData[timestamp.key][location]) + "}")
 #     output.write("\n]}\n")
 #     output.close()
-   
+    
 # # bytearray output
 locationOrdered = []
 for location in finalData[timestamps[0].key]:
@@ -275,7 +276,7 @@ for location in finalData[timestamps[0].key]:
 locationOrdered.sort()
 for i in range(0, len(locationOrdered)):
     locationOrdered[i] = str(locationOrdered[i])
-       
+        
 for timestamp in timestamps:
     fileName = OUTPUT_DIRECTORY + timestamp.key + ".dat"
     print("\tWriting data to " + fileName)
@@ -291,7 +292,7 @@ for timestamp in timestamps:
         #         output.write(levelDown)
                 output.write(bytes([levelUpper, levelDown]))
     output.close()
-     
+      
 print("Done...")
 
 # generate day string for the last 2 weeks
@@ -310,6 +311,7 @@ for i in range(1, 15):
             timestampKey = dayString + str(h)
         timestamp = Timestamp().createBasedOnKey(timestampKey)
         pastweeksTimestamps.append(timestamp)
+        print(timestamp)
          
     pastweeksDays.append(dayString)
      
@@ -339,7 +341,7 @@ downloadWeatherDataFromWunderground(
   
 print("Done...")
   
-print("Process weather data...l")
+print("Process weather data...")
 # generate weather data
          
 processWUData(
@@ -442,6 +444,7 @@ for i in range(0, len(predictionData)):
     locations.add(location)
     timestamp = str(int(applyData["timestamp"][i]))
     value = predictionData[i]
+    print("location: " + str(location) + ",ts:" + str(timestamp) + ",v:" + str(value))
     finalData[timestamp][location] = value
  
 orderedTimestampKeys = []
@@ -462,7 +465,12 @@ for loc in locations:
     observed = []
     predicted = []
     for timestamp in orderedTimestamps:
-        modelledData.append(finalData[timestamp.key][loc])
+        print("Location: " + str(loc))
+        print("timestamp: " + str(timestamp))
+        if timestamp.key in finalData and loc in finalData[timestamp.key]:
+            modelledData.append(finalData[timestamp.key][loc])
+        else:
+            modelledData.append(float('nan'))
         d = datetime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour)
         datesList.append(d)
         if timestamp.key not in aqData or str(loc) not in aqData[timestamp.key]:
@@ -470,12 +478,15 @@ for loc in locations:
         else:
             aqDataStation.append(aqData[timestamp.key][str(loc)])
             observed.append(aqData[timestamp.key][str(loc)])
-            predicted.append(finalData[timestamp.key][loc])
+            if timestamp.key in finalData and loc in finalData[timestamp.key]:
+                predicted.append(finalData[timestamp.key][loc])
+            else:
+                predicted.append(float('nan'))            
     
     if len(predicted) > 0: 
         rmse = rmseEval(predicted, observed)
         mae = maeEval(predicted, observed)
-        r = correlationEval(predicted, observed)
+        #r = correlationEval(predicted, observed)
 #     print("r: " + str(r))
 #     print("RMSE: " + str(rmse))
 #     print("MAE: " + str(mae))
@@ -485,7 +496,7 @@ for loc in locations:
     hfmt = dates.DateFormatter('%d/%m/%Y %H:%M')
     ax.xaxis.set_major_formatter(hfmt)
     if len(predicted) > 0:
-        ax.plot_date(datesList, modelledData, '-', color="b", label="Modelled (RMSE:" + str(rmse[1])[0:5] + ",MAE:" + str(mae[1])[0:5] + ",r:" + str(r[1])[0:4] + ")")
+        ax.plot_date(datesList, modelledData, '-', color="b", label="Modelled (RMSE:" + str(rmse[1])[0:5] + ",MAE:" + str(mae[1])[0:5] + ")")
     else:
         ax.plot_date(datesList, modelledData, '-', color="b", label="Modelled")
     ax.plot_date(datesList, aqDataStation, '-', color="r", label="Observed")
