@@ -4,12 +4,13 @@ from Geometry import pointInTriangle
 from MapCoordinate import MapCoordinate
 
 class OsmPolygon:
-    def __init__(self, ID, category, coordinates):
+    def __init__(self, ID, category, d, coordinates):
         self.ID = ID
         self.category = category
+        self.d = d
         self.coordinates = coordinates
         
-def loadPolygons(fileName, printPrefixString):
+def loadPolygons(fileName, printPrefixString, categories = set()):
     
     polygons = {}
     
@@ -32,7 +33,8 @@ def loadPolygons(fileName, printPrefixString):
             #314867713,natural/wood,2014-11-28T14:46:26Z,53.7872633;-0.8605173;53.7872554;-0.8604771;53.7872432;-0.8604623;53.7872056;-0.860443;53.7871637;-0.8604493;53.7867152;-0.860634;53.7865587;-0.8607221;53.786546;-0.8607951;53.7865397;-0.8610242;53.7862582;-0.8610407;53.7863269;-0.8611622;53.7865431;-0.8614102;53.7866365;-0.8614155;53.7868948;-0.8612142;53.7871119;-0.860948;53.7872072;-0.8608029;53.7872608;-0.8605705;53.7872633;-0.8605173    
             polyId = str(splittedLine[0])
             category = str(splittedLine[1])
-            shape = str(splittedLine[2])
+            d = str(splittedLine[2])
+            shape = str(splittedLine[3])
             
             splittedShape = shape.split(";")
             coordinates = []
@@ -40,15 +42,15 @@ def loadPolygons(fileName, printPrefixString):
                 lat = splittedShape[2 * i]
                 lon = splittedShape[2 * i + 1]
                 coordinates.append(WGS84Coordinate(lat, lon))
-            
-            polygon = OsmPolygon(polyId, category, coordinates)
-            polygons[polyId] = polygon
+            if len(categories) == 0 or category[:category.index("/")] in categories:
+                polygon = OsmPolygon(polyId, category, d, coordinates)
+                polygons[polyId] = polygon
                             
     print(printPrefixString + "\t#polygons: " + str(len(polygons)))
     print(printPrefixString + "Done...")
     return polygons
     
-def getRectangleOSMPolygons(inputPolygonFile, inputRectangleFile, outputFile, outputStationTraingleGisFile, printPrefixString):
+def getRectangleOSMPolygons(inputPolygonFile, inputRectangleFile, categoryName, generateCount, outputFile, outputStationTraingleGisFile, printPrefixString):
     
     polygons = loadPolygons(inputPolygonFile, printPrefixString)
     
@@ -64,11 +66,11 @@ def getRectangleOSMPolygons(inputPolygonFile, inputRectangleFile, outputFile, ou
 #     saveStationsPolygonsGis(rectangles, outputStationPolyGisFile, printPrefixString)    
      
     # generate station polygons triangles
-    createTriangleAndSaveFiles(rectangles, outputFile, 100, outputStationTraingleGisFile, printPrefixString)
+    createTriangleAndSaveFiles(rectangles, categoryName, generateCount, outputFile, 100, outputStationTraingleGisFile, printPrefixString)
   
          
      
-def createTriangleAndSaveFiles(rectangles, outputFile, detailLevel, outputGISTriangleFile, printPrefixString = ""):
+def createTriangleAndSaveFiles(rectangles, categoryName, generateCount, outputFile, detailLevel, outputGISTriangleFile, printPrefixString = ""):
      
     print(printPrefixString + "Writing out triangle gis data to " + outputGISTriangleFile)
     output = open(outputGISTriangleFile, 'w')
@@ -101,11 +103,14 @@ def createTriangleAndSaveFiles(rectangles, outputFile, detailLevel, outputGISTri
      
     # create output file
     output = open(outputFile, 'w')
-    output.write("location,leisure_area,landuse_area\n")
+    output.write("location," + categoryName + "_area")
+    if generateCount == True:
+        output.write("," + categoryName + "_count")
+    output.write("\n")
     for rectangle in rectangles:
         print(printPrefixString + "\tStation: " + str(rectangle.ID))
-        leisureAreaCoverred = 0
-        landuseAreaCoverred = 0
+        areaCovered = 0
+        polygonsInThisRectangle = set()
         # try to find out how much part of the rectangle is covered by the buildings
         for x in range(0, detailLevel):
             for y in range(0, detailLevel):
@@ -117,9 +122,8 @@ def createTriangleAndSaveFiles(rectangles, outputFile, detailLevel, outputGISTri
                 p1y = se.y + (nw.y - se.y) * (float(y) / float(detailLevel))
                 p2y = se.y + (nw.y - se.y) * (float(y + 1) / float(detailLevel))
                 c = MapCoordinate((p1x + p2x) / 2.0, (p1y + p2y) / 2.0)
-                 
-                leisureCovered = False
-                landuseCovered = False
+                
+                covered = False
                  
                 for polygon in rectangle.polygons:
                     for triangle in polygon.triangles:
@@ -127,17 +131,16 @@ def createTriangleAndSaveFiles(rectangles, outputFile, detailLevel, outputGISTri
                         v2 = triangle[1]
                         v3 = triangle[2]
                         if pointInTriangle(v1, v2, v3, c) == True:
-                            if polygon.category[0:7] == "leisure" and leisureCovered == False:
-                                leisureAreaCoverred = leisureAreaCoverred + 1
-                                leisureCovered = True
-                            if polygon.category[0:7] == "landuse" and landuseCovered == False:
-                                landuseAreaCoverred = landuseAreaCoverred + 1
-                                landuseCovered = True
+                            if covered == False:
+                                polygonsInThisRectangle.add(polygon)
+                                areaCovered = areaCovered + 1
          
-        landuseCoverage = float(landuseAreaCoverred)/(detailLevel * detailLevel)
-        leisureCoverage = float(leisureAreaCoverred)/(detailLevel * detailLevel)
+        areaCoverage = float(areaCovered)/(detailLevel * detailLevel)
          
-        output.write(str(rectangle.ID) + "," + str(landuseCoverage) + "," + str(leisureCoverage) + "\n")
+        output.write(str(rectangle.ID) + "," + str(areaCoverage))
+        if generateCount == True:
+            output.write("," + str(len(polygonsInThisRectangle)))
+        output.write("\n")
              
     output.close()
     print(printPrefixString + "Done...")
@@ -209,6 +212,10 @@ def saveAllPolygonsGis(polygons, fileName, printPrefixString = ""):
       
     for ID in polygons:
         polygon = polygons[ID]
+        if len(polygon.coordinates) == 0:
+            print("Warning: polygon with 0 coordinates")
+            continue 
+        
         output.write(str(polygon.ID) + ";")
         output.write(polygon.category + ";")
         output.write("POLYGON((")
@@ -302,5 +309,40 @@ def multiplyLanduseData(inputFile, timestamps, outputfile, printPrefixString = "
                 output.write(splittedLine[1]) # leisure_area
                 output.write(",")
                 output.write(splittedLine[2]) # landuse_area
+                output.write("\n")
+    output.close()
+
+def multiplyLanduseData2(inputFile, timestamps, outputfile, printPrefixString = ""):
+    
+    # open the file
+    print(printPrefixString + "Open osm polygon data file " + inputFile + " and open output file " + outputfile + "...")
+    
+    output = open(outputfile, 'w')
+    output.write("location,timestamp");    
+    
+    firstLine = True
+    # open the file
+    with open(inputFile) as infile:
+        # read line by line
+        for line in infile:
+            # remove newline character from the end
+            line = line.rstrip()
+            # split the line
+            splittedLine = line.split(',')
+
+            # skip the first line (header line)
+            if firstLine == True:
+                firstLine = False
+                for i in range(1,len(splittedLine)):
+                    output.write("," + splittedLine[i])
+                output.write("\n")
+                continue
+            
+            for timestamp in timestamps:    
+                output.write(splittedLine[0]) # location
+                output.write(",")
+                output.write(timestamp.key)
+                for i in range(1,len(splittedLine)):
+                    output.write("," + splittedLine[i])
                 output.write("\n")
     output.close()
