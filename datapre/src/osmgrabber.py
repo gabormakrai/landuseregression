@@ -2,8 +2,6 @@ import xml.etree.ElementTree as ET
 import wget
 from WGS84Coordinate import WGS84Coordinate
 import os
-from osmpolygons import saveAllPolygonsGis
-from debian.debtags import output
 
 class OsmPolygonVersion:
     def __init__(self, ID, category):
@@ -55,20 +53,23 @@ def downloadOsmData(minLon, maxLon, minLat, maxLat, directory, printPrefixString
             lat1 = lat
             lat2 = lat + scale
             
-            url = "http://api.openstreetmap.org/api/0.6/map?bbox=" + str(lon1) + "," + str(lat1) + "," + str(lon2) + "," + str(lat2);
-                        
-            while True:
-                try:
-                    wget.download(url, directory + str(fileCounter) + ".osm")
-                    break
-                except:
-                    print
-                    print("error occourd: " + str(fileCounter))
-                    print
-                    print
-                    pass
-            
-            print("\r" + printPrefixString + "Downloaded: " + str(fileCounter) + " / " + str(maxFile) + "                  ", end = "")
+            if os.path.exists(directory + str(fileCounter) + ".osm"):
+                print("File " + directory + str(fileCounter) + ".osm exists")
+            else:
+                url = "http://api.openstreetmap.org/api/0.6/map?bbox=" + str(lon1) + "," + str(lat1) + "," + str(lon2) + "," + str(lat2);
+                            
+                while True:
+                    try:
+                        wget.download(url, directory + str(fileCounter) + ".osm")
+                        break
+                    except:
+                        print
+                        print("error occourd: " + str(fileCounter))
+                        print
+                        print
+                        pass
+                
+                print("\r" + printPrefixString + "Downloaded: " + str(fileCounter) + " / " + str(maxFile) + "                  ", end = "")
             
             fileCounter = fileCounter + 1
             
