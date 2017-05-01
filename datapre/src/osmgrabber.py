@@ -3,6 +3,7 @@ import wget
 from WGS84Coordinate import WGS84Coordinate
 import os
 from osmpolygons import saveAllPolygonsGis
+from debian.debtags import output
 
 class OsmPolygonVersion:
     def __init__(self, ID, category):
@@ -108,6 +109,10 @@ def getPolygonsFromFile(fileName, polygons, polygonsWithHistory, keys, coordinat
             polygonsWithHistory.add(way.get('id'))
  
 def getPolygonsFromOSM(inputOSMDirectory, historyDirectory, outputFile, printPrefixString = ""):
+    
+    if os.path.exists(outputFile):
+        print(printPrefixString + "output file " + str(outputFile) + " exists...")
+        return
      
     print(printPrefixString + "Opening directory " + inputOSMDirectory + " for osm files...")
 
@@ -353,10 +358,14 @@ def writeOutYearPolygons(inputPolygonFile, year, fileName, gisFileName, printPre
     polygons = loadPolygons(inputPolygonFile, printPrefixString)
     
     yearDate = str(year) + "-12-31T23:59:59Z"
+    
+    print(printPrefixString + "writing out " + str(fileName) + " poly file...")
      
     output = open(fileName, 'w')
-    output.write("id,category,shape\n")    
+    output.write("id,category,date,shape\n")    
      
+    print(printPrefixString + "writing out " + str(fileName) + " gis file...")
+    
     outputGis = open(gisFileName, 'w')
     outputGis.write("id;category;date;shape\n")    
      
@@ -376,6 +385,7 @@ def writeOutYearPolygons(inputPolygonFile, year, fileName, gisFileName, printPre
          
         output.write(str(polyId) + ",")
         output.write(str(polygon.category) + ",")
+        output.write(str(polyDate) + ",")
         shapeString = str(shape[0].latitude) + ";" + str(shape[0].longitude) 
         for j in range(1, len(shape)):
             shapeString = shapeString + ";" + str(shape[j].latitude) + ";" + str(shape[j].longitude) 
@@ -398,6 +408,8 @@ def writeOutYearPolygons(inputPolygonFile, year, fileName, gisFileName, printPre
     
     output.close()
     outputGis.close()
+    
+    print(printPrefixString + "done...")
     
 def getPolygonsWithoutHistoryFromOSM(inputOSMDirectory, outputFile, printPrefixString = "", keys = ("landuse", "leisure", "natural")):
      

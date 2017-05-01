@@ -10,7 +10,7 @@ class OsmPolygon:
         self.d = d
         self.coordinates = coordinates
         
-def loadPolygons(fileName, printPrefixString, categories = set()):
+def loadPolygons(fileName, categoryName, printPrefixString, categories = set()):
     
     polygons = {}
     
@@ -35,6 +35,8 @@ def loadPolygons(fileName, printPrefixString, categories = set()):
             category = str(splittedLine[1])
             d = str(splittedLine[2])
             shape = str(splittedLine[3])
+            if category.startswith(categoryName) == False:
+                continue
             
             splittedShape = shape.split(";")
             coordinates = []
@@ -52,7 +54,7 @@ def loadPolygons(fileName, printPrefixString, categories = set()):
     
 def getRectangleOSMPolygons(inputPolygonFile, inputRectangleFile, categoryName, generateCount, outputFile, outputStationTraingleGisFile, printPrefixString):
     
-    polygons = loadPolygons(inputPolygonFile, printPrefixString)
+    polygons = loadPolygons(inputPolygonFile, categoryName, printPrefixString)
     
     # load rectangles
     rectangles = []
@@ -134,6 +136,7 @@ def createTriangleAndSaveFiles(rectangles, categoryName, generateCount, outputFi
                             if covered == False:
                                 polygonsInThisRectangle.add(polygon)
                                 areaCovered = areaCovered + 1
+                                covered = True
          
         areaCoverage = float(areaCovered)/(detailLevel * detailLevel)
          
