@@ -345,11 +345,24 @@ def createRectangleTrafficAnnual(inputTrafficFile, inputRectangleFile, outputFil
     print(printPrefixString + "Generating indicies for roadDatas...")
     indexedRoadDatas = generateIndex(roadDataArray)
     print(printPrefixString + "Done...")        
-        
-    #calculateRelatedRoadData(rectangles[2], roadDataArray)
+            
     for rectangle in rectangles:
         print(printPrefixString + "\tstationId:" + str(rectangle.ID))
-        calculateRelatedRoadData(rectangle, roadDataArray, indexedRoadDatas)
+        
+        rectangleRoadDataArray = []
+                
+        cornerSW = rectangle.cornerSW.toWGS84Coordinate()
+        cornerNE = rectangle.cornerNE.toWGS84Coordinate()
+        
+        rectangleRoadDataList = list(indexedRoadDatas.intersection((cornerSW.longitude, cornerSW.latitude, cornerNE.longitude, cornerNE.latitude)))
+        
+        for r in rectangleRoadDataList:
+            rectangleRoadDataArray.append(roadDataArray[r])
+            
+        calculateRelatedRoadData(rectangle, rectangleRoadDataArray)
+    
+    print(printPrefixString + "Done...")
+    
     
     print(printPrefixString + "Done...")
     
