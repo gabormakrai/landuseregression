@@ -87,4 +87,33 @@ def processAtcData(year, inputRectangleFile, inputAtcDirectory, outputFile, prin
 
     output.close()
     
+def general_stats_about_london_atc(fileName, printPrefixString):
+    
+    print(printPrefixString + "Parsing atc file " + str(fileName) + " and generating stats...")
+
+    station_ids = set()
+    data_counter = {}
+    
+    firstLine = True    
+    with open(fileName) as infile:
+        # read line by line
+        for line in infile:
+            # skip the first line (header line)
+            if firstLine == True:
+                firstLine = False
+                continue
+            # remove newline character from the end
+            line = line.rstrip()
+            # split the line
+            splittedLine = line.split(',')
+            station = splittedLine[0]
+            station_ids.add(station)
+            if station not in data_counter:
+                data_counter[station] = 0
+            data_counter[station] = data_counter[station] + 1
+    print(printPrefixString + "\t#Stations:" + str(len(station_ids)))
+    for station in data_counter:
+        print(printPrefixString + "\t" + str(station) + ": " + str(data_counter[station]))
+    print(printPrefixString + "Done...")
+
     
