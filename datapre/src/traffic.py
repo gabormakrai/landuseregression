@@ -100,7 +100,7 @@ def loadTraffic(roadDataArray, inputTrafficFile, printPrefixString = ""):
     print(printPrefixString + "#roadData: " + str(len(roadDataArray)))
     print(printPrefixString + "Done...")    
 
-def createRectangleTraffic(inputTrafficFile, inputRectangleFile, outputFile, outputGISFile, printPrefixString = ""):
+def createRectangleTraffic(inputTrafficFile, inputRectangleFile, outputFile, outputGISFile, printPrefixString = "", skipTrafficAmounts = False):
     roadDataArray = []
     # load traffic data
     loadTraffic(roadDataArray, inputTrafficFile, printPrefixString)
@@ -181,7 +181,7 @@ def createRectangleTraffic(inputTrafficFile, inputRectangleFile, outputFile, out
     
     print(printPrefixString + "Done...")
     
-    createTrafficRelatedData(rectangles, outputFile, printPrefixString)
+    createTrafficRelatedData(rectangles, outputFile, printPrefixString, skipTrafficAmounts)
 
 """
 Function that finds all the roadData for a rectangle
@@ -255,14 +255,17 @@ def calculateRelatedRoadData(rectangle, roadDataArray):
     
     rectangle.roadDatas = rectangleRoadData
     
-def createTrafficRelatedData(rectangles, outputFile, printPrefixString = ""):
+def createTrafficRelatedData(rectangles, outputFile, printPrefixString = "", skipTrafficAmounts = False):
     print(printPrefixString + "Write out traffic related data to " + outputFile + "...")
     
     # write out gis File
     output = open(outputFile, 'w')
     
     #header
-    output.write("location,tlc_am,tlc_ip,tlc_pm,tll_am,tll_ip,tll_pm,tlh_am,tlh_ip,tlh_pm,lane_length,length\n")
+    if skipTrafficAmounts == True:
+        output.write("location,lane_length,length\n")
+    else:
+        output.write("location,tlc_am,tlc_ip,tlc_pm,tll_am,tll_ip,tll_pm,tlh_am,tlh_ip,tlh_pm,lane_length,length\n")
     
     for rectangle in rectangles:
         lane_length = 0
@@ -306,17 +309,18 @@ def createTrafficRelatedData(rectangles, outputFile, printPrefixString = ""):
                  
         output.write(str(rectangle.ID) + ",")
         
-        output.write(str(traffic_length_car_am) + ",")
-        output.write(str(traffic_length_lgv_am) + ",")
-        output.write(str(traffic_length_hgv_am) + ",")
-        
-        output.write(str(traffic_length_car_ip) + ",")
-        output.write(str(traffic_length_lgv_ip) + ",")
-        output.write(str(traffic_length_hgv_ip) + ",")
-        
-        output.write(str(traffic_length_car_pm) + ",")
-        output.write(str(traffic_length_lgv_pm) + ",")
-        output.write(str(traffic_length_hgv_pm) + ",")
+        if skipTrafficAmounts == False:
+            output.write(str(traffic_length_car_am) + ",")
+            output.write(str(traffic_length_lgv_am) + ",")
+            output.write(str(traffic_length_hgv_am) + ",")
+            
+            output.write(str(traffic_length_car_ip) + ",")
+            output.write(str(traffic_length_lgv_ip) + ",")
+            output.write(str(traffic_length_hgv_ip) + ",")
+            
+            output.write(str(traffic_length_car_pm) + ",")
+            output.write(str(traffic_length_lgv_pm) + ",")
+            output.write(str(traffic_length_hgv_pm) + ",")
             
         output.write(str(lane_length) + ",")
         output.write(str(length) + "\n")
@@ -481,7 +485,7 @@ def generateIndex(roadDataArray):
     
     return idx
 
-def addTimestampToTraffic(timestamps, inputFile, outputFile, printPrefixString = ""):
+def addTimestampToTraffic(timestamps, inputFile, outputFile, printPrefixString = "", skipTrafficAmount = False):
     
     data = {}
     
@@ -505,20 +509,24 @@ def addTimestampToTraffic(timestamps, inputFile, outputFile, printPrefixString =
             
             trafficData = {}
             
-            trafficData["tlc_am"] = splittedLine[1]
-            trafficData["tll_am"] = splittedLine[2]
-            trafficData["tlh_am"] = splittedLine[3]
-            
-            trafficData["tlc_ip"] = splittedLine[4]
-            trafficData["tll_ip"] = splittedLine[5]
-            trafficData["tlh_ip"] = splittedLine[6]
-            
-            trafficData["tlc_pm"] = splittedLine[7]
-            trafficData["tll_pm"] = splittedLine[8]
-            trafficData["tlh_pm"] = splittedLine[9]
-            
-            trafficData["lane_length"] = splittedLine[10]
-            trafficData["length"] = splittedLine[11]
+            if skipTrafficAmount == False:
+                trafficData["tlc_am"] = splittedLine[1]
+                trafficData["tll_am"] = splittedLine[2]
+                trafficData["tlh_am"] = splittedLine[3]
+                
+                trafficData["tlc_ip"] = splittedLine[4]
+                trafficData["tll_ip"] = splittedLine[5]
+                trafficData["tlh_ip"] = splittedLine[6]
+                
+                trafficData["tlc_pm"] = splittedLine[7]
+                trafficData["tll_pm"] = splittedLine[8]
+                trafficData["tlh_pm"] = splittedLine[9]
+                
+                trafficData["lane_length"] = splittedLine[10]
+                trafficData["length"] = splittedLine[11]
+            else:
+                trafficData["lane_length"] = splittedLine[1]
+                trafficData["length"] = splittedLine[2]
             
             data[location] = trafficData
             
@@ -528,8 +536,10 @@ def addTimestampToTraffic(timestamps, inputFile, outputFile, printPrefixString =
     
     # write out gis File
     output = open(outputFile, 'w')
-    
-    output.write("location,timestamp,traffic_length_car,traffic_length_lgv,traffic_length_hgv,lane_length,length\n")
+    if skipTrafficAmount:
+        output.write("location,timestamp,lane_length,length\n")
+    else:
+        output.write("location,timestamp,traffic_length_car,traffic_length_lgv,traffic_length_hgv,lane_length,length\n")
     
     for location in data:
         for timestamp in timestamps:
@@ -537,32 +547,35 @@ def addTimestampToTraffic(timestamps, inputFile, outputFile, printPrefixString =
             traffic_length_lgv = 0.0
             traffic_length_hgv = 0.0
             
-            if timestamp.hour < 8:
-                traffic_length_car = float(data[location]['tlc_am']) / 4.0 
-                traffic_length_lgv = float(data[location]['tll_am']) / 4.0 
-                traffic_length_hgv = float(data[location]['tlh_am']) / 4.0 
-            elif timestamp.hour >= 8 and timestamp.hour < 10:
-                traffic_length_car = float(data[location]['tlc_am'])
-                traffic_length_lgv = float(data[location]['tll_am'])
-                traffic_length_hgv = float(data[location]['tlh_am'])
-            elif timestamp.hour >= 10 and timestamp.hour < 17:
-                traffic_length_car = float(data[location]['tlc_ip'])
-                traffic_length_lgv = float(data[location]['tll_ip'])
-                traffic_length_hgv = float(data[location]['tlh_ip'])
-            elif timestamp.hour >= 17 and timestamp.hour < 19:
-                traffic_length_car = float(data[location]['tlc_pm'])
-                traffic_length_lgv = float(data[location]['tll_pm'])
-                traffic_length_hgv = float(data[location]['tlh_pm'])
-            else:
-                traffic_length_car = float(data[location]['tlc_pm']) / 4.0
-                traffic_length_lgv = float(data[location]['tll_pm']) / 4.0
-                traffic_length_hgv = float(data[location]['tlh_pm']) / 4.0
+            if skipTrafficAmount == False:
+            
+                if timestamp.hour < 8:
+                    traffic_length_car = float(data[location]['tlc_am']) / 4.0 
+                    traffic_length_lgv = float(data[location]['tll_am']) / 4.0 
+                    traffic_length_hgv = float(data[location]['tlh_am']) / 4.0 
+                elif timestamp.hour >= 8 and timestamp.hour < 10:
+                    traffic_length_car = float(data[location]['tlc_am'])
+                    traffic_length_lgv = float(data[location]['tll_am'])
+                    traffic_length_hgv = float(data[location]['tlh_am'])
+                elif timestamp.hour >= 10 and timestamp.hour < 17:
+                    traffic_length_car = float(data[location]['tlc_ip'])
+                    traffic_length_lgv = float(data[location]['tll_ip'])
+                    traffic_length_hgv = float(data[location]['tlh_ip'])
+                elif timestamp.hour >= 17 and timestamp.hour < 19:
+                    traffic_length_car = float(data[location]['tlc_pm'])
+                    traffic_length_lgv = float(data[location]['tll_pm'])
+                    traffic_length_hgv = float(data[location]['tlh_pm'])
+                else:
+                    traffic_length_car = float(data[location]['tlc_pm']) / 4.0
+                    traffic_length_lgv = float(data[location]['tll_pm']) / 4.0
+                    traffic_length_hgv = float(data[location]['tlh_pm']) / 4.0
     
             output.write(location + ",")
             output.write(timestamp.key + ",")
-            output.write(str(traffic_length_car) + ",")
-            output.write(str(traffic_length_lgv) + ",")
-            output.write(str(traffic_length_hgv) + ",")
+            if skipTrafficAmount == False:
+                output.write(str(traffic_length_car) + ",")
+                output.write(str(traffic_length_lgv) + ",")
+                output.write(str(traffic_length_hgv) + ",")
             output.write(data[location]['lane_length'] + ",")
             output.write(data[location]['length'] + "\n")
             
