@@ -15,6 +15,13 @@ class OsmPolygonVersion:
         self.dates.append(date)
         self.coordinates.append(coordinates)
 
+class OsmHighway:
+    def __init__(self, ID, lane_number, one_way, coordinates):
+        self.ID = ID
+        self.lane_number = lane_number
+        self.one_way = one_way
+        self.coordinates = coordinates
+
 def downloadOsmData(minLon, maxLon, minLat, maxLat, directory, printPrefixString = ""):
     
     scale = 0.01
@@ -500,3 +507,131 @@ def getPolygonCategoriesFromFile(fileName, categories):
                 f = categories[keyValue]
                 f = f + 1
                 categories[keyValue] = f
+
+def getHighwaysFromFile(fileName, highways, coordinates):
+    deniedHighwayKeyValues = set()
+    
+    deniedHighwayKeyValues.add("cycleway")
+    deniedHighwayKeyValues.add("footway")
+    deniedHighwayKeyValues.add("steps")
+    deniedHighwayKeyValues.add("path")
+    deniedHighwayKeyValues.add("track")
+    deniedHighwayKeyValues.add("pedestrian")
+    deniedHighwayKeyValues.add("service")
+    deniedHighwayKeyValues.add("bridleway")
+    deniedHighwayKeyValues.add("construction")
+    
+    parser = ET.XMLParser(encoding="utf-8")
+    tree = ET.parse(fileName, parser = parser)
+    root = tree.getroot()
+     
+    for element in root.findall('node'):
+        longitude = element.get('lon')
+        latitude = element.get('lat')
+        ID = str(element.get('id'))
+        coordinates[ID] = WGS84Coordinate(latitude, longitude)
+         
+    for way in root.findall('way'):
+        oneWay = False
+        isInteresting = False
+        lanes = 0
+        for tag in way.findall('tag'):
+            if tag.get('k') == "highway" and tag.get('v') not in deniedHighwayKeyValues:
+                isInteresting = True
+            if tag.get('k') == 'oneway' and tag.get('v') == 'true':
+                oneWay = True
+            if tag.get('k') == 'junction' and tag.get('v') == 'roundabout':
+                oneWay = True
+            if tag.get('k') == 'lanes':
+                if ";" in tag.get('v'):
+                    lanes = 0
+                    splitted = tag.get('v').split(";")
+                    for i in range(0, len(splitted)):
+                        lanes = lanes + int(splitted[i])
+                else:
+                    lanes = int(float(tag.get('v')))
+            
+        if isInteresting == False:
+            continue
+        if lanes == 0:
+            if oneWay == True:
+                lanes = 1
+            else:
+                lanes = 2
+        wayCoordinates = []
+        for nd in way.findall('nd'):
+            ID = str(nd.get('ref'))
+            wayCoordinates.append(coordinates[ID])
+        highway = OsmHighway(way.get('id'), lanes, oneWay, wayCoordinates)
+        highways[highway.ID] = highway
+
+def getHighwaysFromOSM(inputOSMDirectory, outputFile, outputGISFile, printPrefixString = ""):
+    
+    if os.path.exists(outputFile):
+        print(printPrefixString + "output file " + str(outputFile) + " exists...")
+        return
+     
+    print(printPrefixString + "Opening directory " + inputOSMDirectory + " for osm files...")
+         
+    highways = {}
+    coordinates = {}
+     
+    fileNames = next(os.walk(inputOSMDirectory))[2]
+    for fileName in fileNames:
+        absoluteFileName = inputOSMDirectory + fileName
+        print("\r" + printPrefixString + "processing file: " + absoluteFileName + "                        ", end = "")
+        getHighwaysFromFile(absoluteFileName, highways, coordinates)
+         
+    print("\r" + printPrefixString + "Loading files is done...                                              ")
+    print(printPrefixString + "#highways: " + str(len(highways)))
+    print(printPrefixString + "#coordinates: " + str(len(coordinates)))
+    
+    print(printPrefixString + "Writing out gis info...")
+    
+    output = open(outputGISFile, 'w')
+    
+    output.write("id;oneway;lanes;linestring\n")
+    
+    for highwayId in highways:
+        highway = highways[highwayId]
+        output.write(str(highwayId) + ";")
+        output.write(str(highway.one_way) + ";")
+        output.write(str(highway.lane_number) + ";")
+        c = highway.coordinates[0]
+        output.write("LINESTRING (" + str(c.longitude) + " " + str(c.latitude))
+        for i in range(1, len(highway.coordinates)):
+            c = highway.coordinates[i]
+            output.write(", " + str(c.longitude) + " " + str(c.latitude))
+        output.write(")\n")
+    
+    output.close()
+    
+    print(printPrefixString + "Done...")
+    
+    print(printPrefixString + "Writing out traffic file...")
+    
+    output = open(outputFile, 'w')
+    output.write("id,longitude1,latitude1,longitude2,latitude2,speed_limit,lane_number,one_way,am_car,am_lgv,am_hgv,ip_car,ip_lgv,ip_hgv,pm_car,pm_lgv,pm_hgv\n")
+    
+    roadId = 0
+    
+    for highwayId in highways:
+        highway = highways[highwayId]
+        for i in range(1, len(highway.coordinates)):
+            c1 = highway.coordinates[i - 1]
+            c2 = highway.coordinates[i]
+            output.write(str(roadId) + ",")
+            output.write(str(c1.longitude) + "," + str(c1.latitude) + ",")
+            output.write(str(c2.longitude) + "," + str(c2.latitude) + ",")
+            output.write("30,")
+            output.write(str(highway.lane_number) + ",")
+            if highway.one_way == True:
+                output.write("true")
+            else:
+                output.write("false")
+            for i in range(0, 9): output.write(",0")
+            output.write("\n")
+    
+    output.close()
+    
+    print(printPrefixString + "Done...")
