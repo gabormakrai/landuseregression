@@ -116,4 +116,111 @@ def general_stats_about_london_atc(fileName, printPrefixString):
         print(printPrefixString + "\t" + str(station) + ": " + str(data_counter[station]))
     print(printPrefixString + "Done...")
 
+def process_london_atc_data(atcFile, atcSiteFile, outputFile, printPrefixString = ""):
     
+    atcData = {}
+    monthsStrings = {"JAN": "01", "FEB": "02", "MAR": "03", "APR": "04", "MAY": "05", "JUN": "06", "JUL": "07", "AUG": "08", "SEP": "09", "OCT": "10", "NOV": "11", "DEC": "12"}
+
+    print(printPrefixString + "Parsing atc file " + str(atcFile) + " for atc data...")
+    
+    firstLine = True    
+    with open(atcFile) as infile:
+        # read line by line
+        for line in infile:
+            # skip the first line (header line)
+            if firstLine == True:
+                firstLine = False
+                continue
+            # remove newline character from the end
+            line = line.rstrip()
+            # split the line
+            splittedLine = line.split(',')
+            # 5,East,1,01-Jan-15,2,483,,NonPeak,Thursday,2,1            
+            station = splittedLine[0]
+            dateString = splittedLine[3]
+            hour = int(splittedLine[4]) + 1
+            hourString = str(hour)
+            if hour < 10:
+                hourString = "0" + hourString
+            counter = float(splittedLine[5])
+            
+            dayString = dateString[0:2]
+            monthString = monthsStrings[dateString[3:6].upper()]
+            yearString = "20" + dateString[7:]
+            
+            timestampString = yearString + monthString + dayString + hourString
+            if station not in atcData:
+                atcData[station] = {}
+            
+            if timestampString in atcData[station]:
+                atcData[station][timestampString] = (atcData[station][timestampString] + counter) / 2.0
+            else:
+                atcData[station][timestampString] = counter
+    
+    print(printPrefixString + "Done...")
+    
+    print(printPrefixString + "Parsing atc site file " + atcSiteFile + " for site matching...")
+    
+    stationAtcData = {}
+    
+    firstLine = True    
+    with open(atcSiteFile) as infile:
+        # read line by line
+        for line in infile:
+            # skip the first line (header line)
+            if firstLine == True:
+                firstLine = False
+                continue
+            # remove newline character from the end
+            line = line.rstrip()
+            # split the line
+            splittedLine = line.split(',')
+            
+            monitoringSite = splittedLine[0]
+            stationAtcData[monitoringSite] = {}
+            atc1Site = splittedLine[1]
+            atc2Site = splittedLine[2]
+            
+            if atc2Site != '-1':
+                atc1Data = {}
+                if atc1Site in atcData:
+                    atc1Data = atcData[atc1Site]
+                atc2Data = {}
+                if atc2Site in atcData:
+                    atc2Data = atcData[atc2Site]
+                
+                timestamps = set()
+                for ts in atc1Data: timestamps.add(ts) 
+                for ts in atc2Data: timestamps.add(ts)
+                
+                for ts in timestamps:
+                    atc1 = 0.0
+                    atc2 = 0.0
+                    counter = 0
+                    if ts in atc1Data:
+                        atc1 = atc1Data[ts] 
+                        counter = counter + 1
+                    if ts in atc2Data:
+                        atc2 = atc2Data[ts] 
+                        counter = counter + 1
+                    atc = (atc1 + atc2) / counter
+                    
+                    stationAtcData[monitoringSite][ts] = atc
+            else:
+                atc1Data = {}
+                if atc1Site in atcData:
+                    atc1Data = atcData[atc1Site]
+                stationAtcData[monitoringSite] = atc1Data
+    print(printPrefixString + "Done...")
+    
+    print(printPrefixString + "Writing out atc data to " + outputFile + "...")
+    
+    output = open(outputFile, 'w')
+    output.write("location,timestamp,atc\n")
+    
+    for station in stationAtcData:
+        for ts in stationAtcData[station]:
+            output.write(station + "," + ts + "," + str(stationAtcData[station][ts]) + "\n")
+
+    output.close()        
+    print(printPrefixString + "Done...")
