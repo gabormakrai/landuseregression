@@ -123,31 +123,51 @@ def process_london_atc_data(atcFile, atcSiteFile, outputFile, printPrefixString 
 
     print(printPrefixString + "Parsing atc file " + str(atcFile) + " for atc data...")
     
-    firstLine = True    
+    firstLine = True
+    siteNoColumn = -1
+    dateColumn = -1
+    startHourColumn = -1
+    totVolColumn = -1    
     with open(atcFile) as infile:
         # read line by line
         for line in infile:
-            # skip the first line (header line)
-            if firstLine == True:
-                firstLine = False
-                continue
             # remove newline character from the end
             line = line.rstrip()
             # split the line
             splittedLine = line.split(',')
-            # 5,East,1,01-Jan-15,2,483,,NonPeak,Thursday,2,1            
-            station = splittedLine[0]
-            dateString = splittedLine[3]
-            hour = int(splittedLine[4]) + 1
+            # skip the first line (header line)
+            if firstLine == True:
+                for i in range(0, len(splittedLine)):
+                    if splittedLine[i] == 'SiteNo':
+                        siteNoColumn = i
+                    if splittedLine[i] == 'Date':
+                        dateColumn = i
+                    if splittedLine[i] == 'Starthour':
+                        startHourColumn = i
+                    if splittedLine[i] == 'TOT Vol':
+                        totVolColumn = i
+                firstLine = False
+                continue
+            station = splittedLine[siteNoColumn]
+            dateString = splittedLine[dateColumn]
+            hour = int(splittedLine[startHourColumn]) + 1
             hourString = str(hour)
             if hour < 10:
                 hourString = "0" + hourString
-            counter = float(splittedLine[5])
-            
-            dayString = dateString[0:2]
-            monthString = monthsStrings[dateString[3:6].upper()]
-            yearString = "20" + dateString[7:]
-            
+            counter = float(splittedLine[totVolColumn])
+
+            if len(dateString) == 9:            
+                dayString = dateString[0:2]
+                monthString = monthsStrings[dateString[3:6].upper()]
+                yearString = "20" + dateString[7:]
+            else:
+                #1/1/2016 00:00:00
+                dayString = dateString.split(" ")[0].split("/")[0]
+                if len(dayString) == 1: dayString = "0" + dayString
+                monthString = dateString.split(" ")[0].split("/")[1]
+                if len(monthString) == 1: monthString = "0" + monthString
+                yearString = dateString.split(" ")[0].split("/")[2]
+                
             timestampString = yearString + monthString + dayString + hourString
             if station not in atcData:
                 atcData[station] = {}
