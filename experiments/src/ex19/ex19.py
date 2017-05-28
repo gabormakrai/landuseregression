@@ -1,8 +1,7 @@
 from data.data import loadData
 from copy import deepcopy
 from crossvalidation import splitDataForXValidation
-from sklearn.ensemble.forest import RandomForestRegressor,\
-    RandomForestClassifier
+from sklearn.ensemble.forest import RandomForestRegressor
 from eval.rmse import rmseEval
 from sklearn.tree.tree import DecisionTreeClassifier
 from crossvalidation import sample
