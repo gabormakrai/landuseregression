@@ -21,7 +21,7 @@ def findOutKForValidation(validationColumn, data):
     
     return valueArray
 
-def splitDataForXValidation(value, validationColumn, data, columns, targetColumn):
+def splitDataForXValidation(trainSet, testSet, validationColumn, data, columns, targetColumn):
     
     columnsWithoutValidationAndTarget = deepcopy(columns)
     if validationColumn in columnsWithoutValidationAndTarget:
@@ -37,7 +37,7 @@ def splitDataForXValidation(value, validationColumn, data, columns, targetColumn
     for i in range(0, len(data[validationColumn])):
         targetX = trainX
         targetY = trainY
-        if data[validationColumn][i] == value:
+        if data[validationColumn][i] in testSet:
             targetX = testX
             targetY = testY
             
@@ -50,4 +50,4 @@ def splitDataForXValidation(value, validationColumn, data, columns, targetColumn
         targetY.append(Y)
         targetX.append(X)
             
-    return trainX, testX, trainY, testY 
+    return trainX, testX, trainY, testY
