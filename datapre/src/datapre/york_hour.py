@@ -11,7 +11,7 @@ from traffic import createTrafficGISFile, createRectangleTraffic,\
     addTimestampToTraffic
 from topobuildings import generateAllBuildingGisInformation,\
     generateRectangleBuildings, multiplyBuildingData
-from yorktime import createTimeFile
+from time_data import createTimeFile
 from join import joinFiles
 from Timestamp import generateDatesStringForYear, generateTimestamps
 from weather import downloadWeatherDataFromWunderground, processWUData

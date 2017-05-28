@@ -7,7 +7,7 @@ from rectangles import generateGridStationRectangles, createJsonFile
 from traffic import createRectangleTraffic, addTimestampToTraffic
 from topobuildings import multiplyBuildingData, generateRectangleBuildings
 from osmpolygons import multiplyLanduseData2, getRectangleOSMPolygons
-from yorktime import createTimeFile
+from time_data import createTimeFile
 from weather import processWUData
 from join import joinFiles
 from osmgrabber import getPolygonsFromOSM, writeOutYearPolygons
