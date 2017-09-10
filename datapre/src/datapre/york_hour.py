@@ -20,7 +20,7 @@ from airquality import processAirQualityFiles, writeOutHourlyData
 from atc import processAtcData
 from osmgrabber import getPolygonsFromOSM, writeOutYearPolygons, downloadOsmData
 
-RAW_DATA_DIRECTORY = "/data_raw/york_hour/"
+RAW_DATA_DIRECTORY = "/data_raw/york/"
 WORK_DIRECTORY = "/data/york_hour/"
 OUTPUT_DIRECTORY = "/data/"
 
@@ -212,7 +212,7 @@ for year in years:
         "no2", 
         [year], 
         WORK_DIRECTORY + "stations_rectangles.csv", 
-        WORK_DIRECTORY + "aq/", 
+        RAW_DATA_DIRECTORY + "aq/", 
         "\t")
          
     print("Done...")
