@@ -120,15 +120,15 @@ print("Downloading osm data...")
 if SKIP_DOWNLOAD_STEPS:
     print("\tSkipping download steps")
 else:    
-    downloadOsmData(-1.35, -0.83, 53.76, 54.09, WORK_DIRECTORY + "osm/downloaded/")
+    downloadOsmData(-1.35, -0.83, 53.76, 54.09, RAW_DATA_DIRECTORY + "osm/downloaded/")
     
 print("Done...")
    
 print("Processing downloaded osm data...")
    
 getPolygonsFromOSM(
-    WORK_DIRECTORY + "osm/downloaded/",
-    WORK_DIRECTORY + "osm/history/",
+    RAW_DATA_DIRECTORY + "osm/downloaded/",
+    RAW_DATA_DIRECTORY + "osm/history/",
     WORK_DIRECTORY + "polygons.csv",
     "\t")
    
@@ -239,7 +239,7 @@ else:
             "UK", 
             "York", 
             generateDatesStringForYear(year), 
-            WORK_DIRECTORY + "weather/wu/", 
+            RAW_DATA_DIRECTORY + "weather/wu/", 
             8.0,
             "\t")
        
@@ -250,7 +250,7 @@ print("Processing WU weather data...")
 for year in years: 
     processWUData(
         generateTimestamps(year),
-        WORK_DIRECTORY + "weather/wu/", 
+        RAW_DATA_DIRECTORY + "weather/wu/", 
         WORK_DIRECTORY + "stations_rectangles.csv",
         WORK_DIRECTORY + "weather_" + str(year) + ".csv", 
         "\t")
@@ -262,7 +262,7 @@ print("Processing WU weather data (binned)...")
 for year in years: 
     processWUData(
         generateTimestamps(year),
-        WORK_DIRECTORY + "weather/wu/", 
+        RAW_DATA_DIRECTORY + "weather/wu/", 
         WORK_DIRECTORY + "stations_rectangles.csv",
         WORK_DIRECTORY + "weather2_" + str(year) + ".csv", 
         "\t",
