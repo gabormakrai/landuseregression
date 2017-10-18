@@ -1,45 +1,33 @@
-import numpy as np
 from copy import deepcopy
 
-def findOutKForValidation(validationColumn, data):
+def splitDataForXValidation(value, validationColumn, data, columns, targetColumn):
     
-    values = {}
+    columnsWithoutValidationAndTarget = deepcopy(columns)
+    if validationColumn in columnsWithoutValidationAndTarget:
+        columnsWithoutValidationAndTarget.remove(validationColumn)
+    if targetColumn in columnsWithoutValidationAndTarget:
+        columnsWithoutValidationAndTarget.remove(targetColumn)
     
-    for i in range(0, len(data[validationColumn])):
-        value = data[validationColumn][i]
-        if value in values:
-            counter = values[value]
-            counter = counter + 1
-            values[value] = counter
-        else:
-            values[value] = 1
-    
-    print(str(values))
-    
-    valueArray = []
-    for v in values:
-        valueArray.append(v)
-    
-    return valueArray
-
-def splitDataForXValidation(value, validationColumn, data):
-    trainData = {}
-    testData = {}
-    
-    for c in data:
-        if c != validationColumn:
-            trainData[c] = []
-            testData[c] = []
-    
-    for i in range(0, len(data[validationColumn])):
-        targetData = trainData
-        if data[validationColumn][i] == value:
-            targetData = testData
+    trainX = []
+    testX = []
+    trainY = []
+    testY = []
         
-        for c in targetData:
-            targetData[c].append(data[c][i])
-    
-    return trainData, testData
-    
-    
-    
+    for i in range(0, len(data[validationColumn])):
+        targetX = trainX
+        targetY = trainY
+        if data[validationColumn][i] == value:
+            targetX = testX
+            targetY = testY
+            
+        X = []
+        for c in columnsWithoutValidationAndTarget:
+            X.append(data[c][i])
+            
+        Y = data[targetColumn][i]
+        
+        targetY.append(Y)
+        targetX.append(X)
+            
+    return trainX, testX, trainY, testY
+
