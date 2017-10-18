@@ -8,8 +8,8 @@ OUTPUT_DATA_FILE = "/experiments/ex1/ex1_rf2.csv"
 
 parametersList = []
 
-for n in range(5,100):
-    for leaf in range(2,100):
+for n in range(5,200):
+    for leaf in range(2,200):
         parametersList.append({"n_estimators": n, "leaf": leaf})
     
 locations = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
