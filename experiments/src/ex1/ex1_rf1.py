@@ -8,7 +8,7 @@ OUTPUT_DATA_FILE = "/experiments/ex1/ex1_rf1.csv"
 
 parametersList = []
 
-for n in range(5,100):
+for n in range(5,500):
     for depth in range(2,50):
         parametersList.append({"n_estimators": n, "depth": depth})
     
@@ -32,11 +32,11 @@ def evalOne(parameters):
     for location in locations:
         trainX, testX, trainY, testY = splitDataForXValidation(location, "location", data, all_features, "target")
         if "depth" in parameters:
-            model = RandomForestRegressor(max_depth = parameters["depth"], random_state=42, n_estimators=parameters["n_estimators"])
+            model = RandomForestRegressor(max_depth = parameters["depth"], random_state=42, n_estimators=parameters["n_estimators"], n_jobs=-1)
         elif "leaf" in parameters:
-            model = RandomForestRegressor(min_samples_leaf = parameters["leaf"], random_state=42, n_estimators=parameters["n_estimators"])
+            model = RandomForestRegressor(min_samples_leaf = parameters["leaf"], random_state=42, n_estimators=parameters["n_estimators"], n_jobs=-1)
         elif "max_leaf" in parameters:
-            model = RandomForestRegressor(max_leaf_nodes = parameters["max_leaf"], random_state=42, n_estimators=parameters["n_estimators"])
+            model = RandomForestRegressor(max_leaf_nodes = parameters["max_leaf"], random_state=42, n_estimators=parameters["n_estimators"], n_jobs=-1)
             
         model.fit(trainX, trainY)
         prediction = model.predict(testX)
