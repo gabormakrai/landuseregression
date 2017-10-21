@@ -9,7 +9,7 @@ data = {}
 columns = []
 loadData(DATA_FILE, [], data, columns)
 
-stations = [(8.0, "Fishergate"), (2.0, "Fulford"), (3.0, "Gillygate"), (4.0, "Heworth"), (5.0, "Holgate"), (6.0, "Lawrence"), (7.0, "Nunnery")]
+stations = [(2.0, "Fulford"), (4.0, "Heworth"), (8.0, "Fishergate"), (7.0, "Nunnery"), (3.0, "Gillygate"), (5.0, "Holgate"), (6.0, "Lawrence")]
 
 dataPerStation = defaultdict(list)
 
