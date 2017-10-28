@@ -97,7 +97,7 @@ def doEval(landuse, topo, traffic_static, traffic_dynamic, weather, time, output
         all_obs.extend(testY)
         all_prediction.extend(prediction)
         
-    rmse = rmseEval(all_obs, all_prediction)[0]
+    rmse = rmseEval(all_obs, all_prediction)[1]
     output.write(str(groupName) + "," + str(rmse) + "\n")
     output.flush()
 
