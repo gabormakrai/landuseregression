@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 INPUT_FILE = "/experiments/ex1/ex1_rf1.csv"
-OUTPUT_FILE_1 = "/experiments/ex1/ex1_rf1_a.png"
+OUTPUT_FILE_1 = "/experiments/ex1/ex1_rf1.png"
 
 data = defaultdict(list)
 
@@ -32,8 +32,8 @@ for i in range(0,200):
 for n in range(5,200):
     ax.plot(x, data[n], color=colors[n])
 
-plt.title("Title")
-plt.ylabel("yLabel")
+plt.xlabel("depth")
+plt.ylabel("RMSE (ug/m3)")
 
 plt.savefig(OUTPUT_FILE_1)
 

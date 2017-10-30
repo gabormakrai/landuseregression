@@ -35,7 +35,7 @@ for n in range(5,133):
         data1.append(data[n][x1])
     ax.plot(x, data1, color=colors[n])
 
-plt.title("Title")
-plt.ylabel("yLabel")
+plt.xlabel("min_leaf")
+plt.ylabel("RMSE (ug/m3)")
 
 plt.savefig(OUTPUT_FILE_1)

@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
-INPUT_FILE = "/experiments/ex1/ex1_rf4.csv"
-OUTPUT_FILE_1 = "/experiments/ex1/ex1_rf4.png"
+INPUT_FILE = "/experiments/ex1/ex1_rf7.csv"
+OUTPUT_FILE_1 = "/experiments/ex1/ex1_rf7.png"
 
 data = defaultdict(lambda: defaultdict(lambda: 0.0))
 
@@ -14,9 +14,9 @@ with open(INPUT_FILE) as infile:
             continue
         s_line = line.split(',')
         n = int(s_line[0])
-        d = int(s_line[2])
+        ml = int(s_line[2])
         rmse = float(s_line[3])
-        data[n][d] = rmse
+        data[n][ml] = rmse
 
 fig = plt.figure(figsize=(10, 10))
 ax = fig.add_subplot(111)
@@ -25,15 +25,15 @@ names = []
 dataToPlot = []
 
 x = range(5,500)
-    
-for d in [10,15,20]:
+
+for ml in [5000,6000,7000]:
     data1 = []
     for x1 in x:
-        data1.append(data[x1][d])
-    ax.plot(x, data1, label="depth_"+str(d))
+        data1.append(data[x1][ml])
+    ax.plot(x, data1, label="max_leaf_" + str(ml))
 
-plt.legend()
-plt.ylabel("RMSE (ug/m3)")
-plt.xlabel("Estimators")
+plt.title("Title")
+plt.ylabel("yLabel")
 
 plt.savefig(OUTPUT_FILE_1)
+
