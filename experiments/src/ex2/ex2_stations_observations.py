@@ -30,7 +30,7 @@ fig = plt.figure(None, figsize=(10, 4))
 ax = fig.add_subplot(111)
 
 ax.boxplot(dataToPlot, showfliers=False)
-ax.set_xticklabels(names) #, rotation='vertical')
+ax.set_xticklabels(names)
 
 plt.ylabel("Concentration levels (ug/m3)")
 plt.ylim(-5.0, 100.0)
