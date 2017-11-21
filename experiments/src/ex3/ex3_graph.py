@@ -1,10 +1,13 @@
 import matplotlib.pyplot as plt
 
+INPUT_DATA_FILE = "/experiments/ex3/ex3_1.csv"
+OUTPUT_FILE_1 = "/experiments/ex3/ex3_1.png"
+OUTPUT_FILE_2 = "/experiments/ex3/ex3_2.png"
+OUTPUT_FILE_3 = "/experiments/ex3/ex3_3.png"
+
 def loadData(fileName):
     data = {}
-    
     print("Open file " + fileName + "...")
-    
     firstLine = True
     # open the file
     with open(fileName) as infile:
@@ -12,32 +15,20 @@ def loadData(fileName):
         for line in infile:                
             # remove newline character from the end
             line = line.rstrip()
-            
             # parse header
             if firstLine == True:
                 firstLine = False
                 continue
-            
             # split the line
             splittedLine = line.split(',')
-            
             group = str(splittedLine[0])
-            
             if group not in data:
                 data[group] = []
-                
             data[group].append(float(splittedLine[1]))
-            
     print("Done...")
-    
     return data
             
-inputFile = "/media/sf_lur/experiments/ex3/result_rfr.csv"
-outputFile1 = "/media/sf_lur/experiments/ex3/graph_rfr_1.png"
-outputFile2 = "/media/sf_lur/experiments/ex3/graph_rfr_2.png"
-outputFile3 = "/media/sf_lur/experiments/ex3/graph_rfr_3.png"
-
-data = loadData(inputFile)
+data = loadData(INPUT_DATA_FILE)
 
 fig = plt.figure(1, figsize=(40, 20))
 ax = fig.add_subplot(111)
@@ -64,21 +55,22 @@ for group in groups:
     dataToPlot.append(groupData)
     print(str(group) + " -> " + str(len(groupData)))
 
-
-ax.boxplot(dataToPlot, showfliers=False)
+x = [i for i in range(0, len(dataToPlot))]
+ax.plot(x, dataToPlot)
+ax.set_xticks(x)
 ax.set_xticklabels(groups, rotation='vertical')
-plt.ylim(0.0, 30.0)
+plt.ylim(10.0, 22.0)
 
-plt.savefig(outputFile1)
+plt.savefig(OUTPUT_FILE_1)
 
 fig = plt.figure(2, figsize=(8, 8))
 ax = fig.add_subplot(111)
-
+ 
 dataWithoutTimeWeather = []
 dataWithTime = []
 dataWithWeather = []
 dataWithTimeWeather = []
-
+ 
 for group in groups:
     groupData = data[group]
     zero = False
@@ -88,7 +80,7 @@ for group in groups:
     if zero:
         for i in range(0, len(groupData)):
             groupData[i] = 0.0
-            
+             
     for v in groupData:
         if "we0ti0" in group:
             dataWithoutTimeWeather.append(v)
@@ -98,26 +90,26 @@ for group in groups:
             dataWithTime.append(v)
         else:
             dataWithTimeWeather.append(v)
-            
+             
 print("dataWithoutTimeWeather: " + str(len(dataWithoutTimeWeather)))
 print("dataWithWeather: " + str(len(dataWithWeather)))
 print("dataWithTime: " + str(len(dataWithTime)))
 print("dataWithTimeWeather: " + str(len(dataWithTimeWeather)))
-
+ 
 ax.boxplot([dataWithoutTimeWeather, dataWithWeather, dataWithTime, dataWithTimeWeather], showfliers=False)
 ax.set_xticklabels(["w/o T, w/o W", "w/ W", "w/ T", "w/ T+W"] )
 plt.ylim(0.0, 30.0)
 plt.ylabel("RMSE (ug/m3)")
-
-plt.savefig(outputFile2)
-
+ 
+plt.savefig(OUTPUT_FILE_2)
+ 
 fig = plt.figure(3, figsize=(13, 13))
 ax = fig.add_subplot(111)
-
+ 
 referenceData = data["lu0to0ts0td0we1ti1"]
 dataToPlot = []
 groupNames = []
-
+ 
 for group in groups:
     groupData = data[group]
     zero = False
@@ -127,23 +119,22 @@ for group in groups:
     if zero:
         for i in range(0, len(groupData)):
             groupData[i] = 0.0
-            
+             
     if group == "lu0to0ts0td0we1ti1":
         continue
-    
+     
     if "we1ti1" not in group:
         continue
-    
+     
     groupNames.append(group[0:12])
     for i in range(0, len(groupData)):
         groupData[i] = 1.0 + (groupData[i] - referenceData[i]) / referenceData[i]
-
+ 
     dataToPlot.append(groupData)
-        
+         
 ax.boxplot(dataToPlot, showfliers=False)
 ax.set_xticklabels(groupNames, rotation='vertical')
 plt.ylim(0.0, 2.0)
 plt.ylabel("Relative error to only (T+W) result")
-plt.savefig(outputFile3)
-
+plt.savefig(OUTPUT_FILE_3)
 

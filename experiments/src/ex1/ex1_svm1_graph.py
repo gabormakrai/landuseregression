@@ -26,20 +26,21 @@ ax = fig.add_subplot(111)
 names = []
 dataToPlot = []
  
-x = range(5,21)
+x = range(5,15)
 
-for samples in [1000, 2000, 3000, 4000, 5000]:
-    names.append("samples_" + str(samples))
-    d = []
-    for x1 in x:
-        d.append(data[x1][600][samples])
-    dataToPlot.append(d)
+for c in [100, 300, 600, 1000, 1200, 1500, 2000, 3000]:
+    for samples in [1000, 2000, 3000, 4000, 5000]:
+        names.append("samples_" + str(samples) +",c_" + str(c))
+        d = []
+        for x1 in x:
+            d.append(data[x1][c][samples])
+        dataToPlot.append(d)
    
 for i in range(0, len(names)):
     ax.plot(x, dataToPlot[i], label=names[i])
  
-plt.title("Title")
-plt.ylabel("yLabel")
-plt.legend()
+plt.ylabel("RMSE (ug/m3)")
+plt.xlabel("Estimators")
+#plt.legend()
  
 plt.savefig(OUTPUT_FILE_1)
