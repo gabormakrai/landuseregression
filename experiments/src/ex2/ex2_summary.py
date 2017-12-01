@@ -10,7 +10,7 @@ from sklearn.metrics import r2_score
 INPUT_DATA_DIRECTORY = "/experimntes/ex2/"
 OUTPUT_DIRECTORY = "/experiments/ex2/"
 
-methods = ["ospm", "linear_lu", "linear_all", "knn", "ann", "dt", "rf", "rf2"]
+methods = ["ospm", "linear_lu", "linear_all", "knn", "svm", "ann", "dt", "rf"]
 
 stations = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
 stationNames = {2.0: "Fulford", 3.0: "Gillygate", 4.0: "Heworth", 5.0: "Holgate", 6.0: "Lawrence", 7.0: "Nunnery", 8.0: "Fishergate"}
@@ -41,7 +41,7 @@ for method in methods:
     print("\tr2: " + str(rsquaredEval(observations[method], predictions[method])[1]))
     print("\tr2: " + str(r2_score(observations[method], predictions[method])))
      
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(5.76, 5.76))
     ax = fig.add_subplot(111)
     ax.scatter(observations[method], predictions[method], alpha=0.1)
     plt.xlim(0,150)
