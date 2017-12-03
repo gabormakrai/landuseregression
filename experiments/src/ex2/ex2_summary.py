@@ -19,6 +19,8 @@ predictions = {}
 observations = {}
 predictionsPerStation = defaultdict(lambda: defaultdict(list))
 observationsPerStation = defaultdict(lambda: defaultdict(list))
+predictionsNormal = defaultdict(list)
+observationsNormal = defaultdict(list)
 
 for method in methods:
     d = {}
@@ -30,8 +32,12 @@ for method in methods:
         p = d["prediction"][i]
         o = d["observation"][i]
         l = d["location"][i]
+        if method == 'svm' and l == 6.0:
+            continue
         predictionsPerStation[method][l].append(p)
         observationsPerStation[method][l].append(o)
+        predictionsNormal[method].append(p)
+        observationsNormal[method].append(o)
     
 for method in methods:
     print("Method: " + method)
@@ -43,7 +49,7 @@ for method in methods:
      
     fig = plt.figure(figsize=(5.76, 5.76))
     ax = fig.add_subplot(111)
-    ax.scatter(observations[method], predictions[method], alpha=0.1)
+    ax.scatter(observationsNormal[method], predictionsNormal[method], alpha=0.1)
     plt.xlim(0,150)
     plt.ylim(0,150)
     plt.ylabel("Prediction (ug/m3)")
