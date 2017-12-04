@@ -18,7 +18,7 @@ with open(INPUT_FILE) as infile:
         rmse = float(s_line[3])
         data[n][ml] = rmse
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
 
 names = []
@@ -32,8 +32,9 @@ for ml in [5000,6000,7000]:
         data1.append(data[x1][ml])
     ax.plot(x, data1, label="max_leaf_" + str(ml))
 
-plt.title("Title")
-plt.ylabel("yLabel")
+plt.ylabel("RMSE (ug/m3)")
+plt.xlabel("Estimators")
+plt.legend()
 
 plt.savefig(OUTPUT_FILE_1)
 

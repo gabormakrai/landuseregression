@@ -18,7 +18,7 @@ with open(INPUT_FILE) as infile:
         rmse = float(s_line[3])
         data[n][d] = rmse
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
 
 names = []
@@ -26,7 +26,7 @@ dataToPlot = []
 
 x = range(5,500)
     
-for d in [10,15,20]:
+for d in [10,15,20,25,30]:
     data1 = []
     for x1 in x:
         data1.append(data[x1][d])

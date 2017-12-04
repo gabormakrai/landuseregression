@@ -18,24 +18,28 @@ with open(INPUT_FILE) as infile:
         rmse = float(s_line[3])
         data[n][l] = rmse
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
 
 x = range(2,200)
 
 colors = []
 for i in range(0,200):
-    c = hex(40 + i).split('x')[-1]
+    c = hex(20 + i).split('x')[-1]
     color = "#" + c + c + c
     colors.append(color)
     
-for n in range(5,133):
+for n in range(5,200):
     data1 = []
     for x1 in x:
         data1.append(data[n][x1])
-    ax.plot(x, data1, color=colors[n])
+    if n % 20 == 0:
+        ax.plot(x, data1, color=colors[n], label="estimator_" + str(n))
+    else:
+        ax.plot(x, data1, color=colors[n])
 
 plt.xlabel("min_leaf")
 plt.ylabel("RMSE (ug/m3)")
+plt.legend()
 
 plt.savefig(OUTPUT_FILE_1)

@@ -18,17 +18,17 @@ with open(INPUT_FILE) as infile:
         rmse = float(s_line[3])
         data[n][ml] = rmse
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
 
 names = []
 dataToPlot = []
 
-x = range(5,5000)
+x = range(5,7000)
 
 colors = []
 for i in range(0,21):
-    c = hex(20 + 10 * i).split('x')[-1]
+    c = hex(20 + 8 * i).split('x')[-1]
     color = "#" + c + c + c
     colors.append(color)
 

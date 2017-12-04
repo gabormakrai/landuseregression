@@ -17,7 +17,7 @@ with open(INPUT_FILE) as infile:
         rmse = float(s_line[3])
         data[n][l] = rmse
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
 
 names = []
@@ -29,7 +29,7 @@ for l in [2,3,4]:
     data1 = []
     for x1 in x:
         data1.append(data[x1][l])
-    ax.plot(x, data1, label="leaf_" + str(l))
+    ax.plot(x, data1, label="min_leaf_" + str(l))
 
 plt.ylabel("RMSE (ug/m3)")
 plt.xlabel("Estimators")

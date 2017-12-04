@@ -15,7 +15,7 @@ with open(INPUT_FILE) as infile:
         s_line = line.split(',')
         data[int(s_line[0])].append(float(s_line[3]))
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
 
 names = []
@@ -25,15 +25,19 @@ x = range(2,50)
 
 colors = []
 for i in range(0,200):
-    c = hex(40 + i).split('x')[-1]
+    c = hex(17 + i).split('x')[-1]
     color = "#" + c + c + c
     colors.append(color)
     
 for n in range(5,200):
-    ax.plot(x, data[n], color=colors[n])
+    if n % 20 == 0:
+        ax.plot(x, data[n], color=colors[n], label="estimator_" + str(n))
+    else:
+        ax.plot(x, data[n], color=colors[n])
 
 plt.xlabel("depth")
 plt.ylabel("RMSE (ug/m3)")
+plt.legend()
 
 plt.savefig(OUTPUT_FILE_1)
 
