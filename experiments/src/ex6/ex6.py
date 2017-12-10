@@ -70,7 +70,7 @@ def eval_one(step):
         all_observations.extend(testY)
         all_predictions.extend(predictions)
     
-    rmse = rmseEval(all_observations, all_predictions)[0]
+    rmse = rmseEval(all_observations, all_predictions)[1]
     
     return rmse
 
