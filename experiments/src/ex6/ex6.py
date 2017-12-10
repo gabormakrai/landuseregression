@@ -1,125 +1,144 @@
-import numpy as np
-import sys
+from copy import deepcopy
 from data.data import loadData
-from crossvalidation import findOutKForValidation, splitDataForXValidation2
-from error import raeEval
+from ex2.crossvalidation import splitDataForXValidation
 from sklearn.ensemble.forest import RandomForestRegressor
+from eval.rmse import rmseEval
+import random
 
-DATA_FILE = "/media/sf_lur/data/" + "data_hour_2013.csv"
-OUTPUT_FILE = "/media/sf_lur/experiments/ex6/" + "o4.csv"
+OUTPUT_FILE = "/experiments/ex6/rmse_output.csv"
+OUTPUT_LOG_FILE = "/experiments/ex6/rmse_log.txt"
 
-if len(sys.argv) > 1:
-    DATA_FILE = sys.argv[1]
-    OUTPUT_FILE = sys.argv[2]
+output = open(OUTPUT_FILE, "w")
+output_log = open(OUTPUT_LOG_FILE, "w")
 
-startPoint = 975000
-endPoint = 1000000
+def log(line):
+    output_log.write(line)
+    output_log.write("\n")
+    output_log.flush()
+    print(line)
 
-if (len(sys.argv) > 3):
-    startPoint = int(sys.argv[3])
-    endPoint = int(sys.argv[4])
+cached_results = {}
+locations = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
 
-def loadHeader(fileName):
-    with open(fileName) as infile:
-        for line in infile:
-            line = line.rstrip()
-            headers = line.split(',')
-            break
-    
-    headers.remove("timestamp")
-    headers.remove("target")
-    headers.remove("location")
-    return headers
-
-# load data
+# load the data
 data = {}
 columns = []
-loadData(DATA_FILE, ["timestamp"], data, columns)
-locationValues = findOutKForValidation("location", data)
+loadData("/data/york_hour_2013.csv", ["timestamp", "atc"], data, columns)
 
-print("Load features (columns) from file " + DATA_FILE)
+all_features = deepcopy(columns)
+all_features.remove("target")
+all_features.remove("location")
+
+log("all_features: " + str(all_features))
+
+current = [True for _ in all_features]
+
+def generate_steps(step):
+    next_steps = []
+
+    # generate forward steps
+    for i in range(0, len(step)):
+        if not step[i]:
+            new_step = deepcopy(step)
+            new_step[i] = True
+            next_steps.append(new_step)
+
+    # generate backwards steps
+    for i in range(0, len(step)):
+        if step[i]:
+            new_step = deepcopy(step)
+            new_step[i] = False
+            next_steps.append(new_step)
+
+    return next_steps
+
+
+def eval_one(step):
+    eval_features = []
+    for i in range(0, len(all_features)):
+        if step[i]:
+            eval_features.append(all_features[i])
     
-features = loadHeader(DATA_FILE)
-
-print("\tFeatures:")
-print("\t" + str(features))
-print("\t#: " + str(len(features)))
-
-print("Open " + OUTPUT_FILE + " for writing...")
-
-output = open(OUTPUT_FILE, 'w')
-for f in features:
-    output.write(f)
-    output.write(",")
-output.write("rae_0,rae_25,rae_50,rae_75,rae_100\n")
-
-vector = []
-for i in range(0, len(features)):
-    vector.append(0)
-vector[0] = 0
-vector[1] = 0
-
-counter = -1
-
-print("Run modelling...")
-
-while True:
-
-    counter = counter + 1
-    sys.stdout.write(str(counter) + " / 1048575\r")
-    sys.stdout.flush()
-        
-    vector[0] = vector[0] + 1
-    for i in range(0, len(vector) - 1):
-        if vector[i] == 2:
-            vector[i] = 0
-            vector[i+1] = vector[i+1] + 1
+    all_predictions = []
+    all_observations = []
     
-    vectorSum = 0
-    for v in vector:
-        vectorSum = vectorSum + v
-    if vectorSum == len(features):
-        break
-    
-    if (startPoint <= counter and counter < endPoint) == False:
-        continue
-        
-    featureToUse = []
-    for i in range(len(vector)):
-        if vector[i] == 1:
-            featureToUse.append(features[i])
-#     print(str(featureToUse))
-        
-    combinedRae = []
-    
-    # modelling
-    for location in locationValues:
-        
-        trainX, testX, trainY, testY = splitDataForXValidation2(location, "location", data, featureToUse, "target")
-        
-        model = RandomForestRegressor(min_samples_leaf = 9, n_estimators = 59, n_jobs = 1)
-        
+    for location in locations:
+        trainX, testX, trainY, testY = splitDataForXValidation(location, "location", data, eval_features, "target")
+        model = RandomForestRegressor(min_samples_leaf = 2, random_state=42, n_estimators=650, n_jobs=-1)
         model.fit(trainX, trainY)
-        
-        prediction = model.predict(testX)
-        
-        rae = raeEval(testY, prediction)
-                
-        for v in rae[1]:
-            combinedRae.append(v)
-            
-    p0 = np.percentile(np.array(combinedRae), 0) 
-    p25 = np.percentile(np.array(combinedRae), 25) 
-    p50 = np.percentile(np.array(combinedRae), 50) 
-    p75 = np.percentile(np.array(combinedRae), 75) 
-    p100 = np.percentile(np.array(combinedRae), 100)
+        predictions = model.predict(testX)
+        all_observations.extend(testY)
+        all_predictions.extend(predictions)
     
-    # write out result
-    for v in vector:
-        output.write(str(v) + ",")
-        
-    output.write(str(p0) + "," + str(p25) + "," + str(p50) + "," + str(p75) + "," + str(p100) + "\n")
-    output.flush() 
+    rmse = rmseEval(all_observations, all_predictions)[0]
     
-print("Done...")
+    return rmse
+
+
+best_result = eval_one(current)
+best_step = deepcopy(current)
+cached_results[tuple(current)] = best_result
+
+local_minima_counter = 0
+local_minima_limit = 3
+local_minima_limit_jumps = 5
+
+for iteration in range(1, 100):
+
+    log("iteration: " + str(iteration))
+    log("\tbest_result: " + str(best_result))
+    log("\tbest_step: " + str(best_step))
+    log("\tcurrent: " + str(current))
+
+    output.write(str(iteration))
+    output.write(";")
+    output.write(str(best_result))
+    output.write(";")
+    output.write(str(best_step))
+    output.write("\n")
+    output.flush()
+
+    possible_steps = generate_steps(current)
+    possible_steps_result = []
+
+    for step in generate_steps(current):
+
+        step_tuple = tuple(step)
+        if step_tuple in cached_results:
+            step_result = cached_results[step_tuple]
+        else:
+            step_result = eval_one(step)
+            cached_results[step_tuple] = step_result
+        log("\t\t" + str(step_result) + " <- " + str(step))
+        possible_steps_result.append(step_result)
+
+    local_best_result = possible_steps_result[0]
+    local_best_step = possible_steps[0]
+
+    for i in range(0, len(possible_steps)):
+        if possible_steps_result[i] < local_best_result:
+            local_best_result = possible_steps_result[i]
+            local_best_step = possible_steps[i]
+
+    log("\tbest local: " + str(local_best_result) + " <- " + str(local_best_step))
+
+    if local_best_result < best_result:
+        log("\tFound a better one...")
+        best_result = local_best_result
+        best_step = local_best_step
+        current = best_step
+    else:
+        local_minima_counter = local_minima_counter + 1
+        log("\tLocal minima " + str(local_minima_counter) + "/" + str(local_minima_limit))
+        if local_minima_counter < local_minima_limit:
+            index = random.randint(0, len(possible_steps) - 1)
+            current = possible_steps[index]
+            log("\tCarry on with " + str(possible_steps_result[index]) + " <- " + str(possible_steps[index]))
+        else:
+            local_minima_counter = 0
+            for _ in range(0, local_minima_limit_jumps):
+                random_possible_steps = generate_steps(current)
+
+
 output.close()
+output_log.close()
