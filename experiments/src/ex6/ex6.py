@@ -152,7 +152,7 @@ for iteration in range(1, 100):
         log("\tFound a better one...")
         best_result = local_best_result
         best_step = local_best_step
-        if local_best_result < best_result:
+        if global_best_result > best_result:
             global_best_result = best_result
             global_best_step = deepcopy(best_step)
         current = best_step
