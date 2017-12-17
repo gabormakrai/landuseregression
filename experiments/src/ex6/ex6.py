@@ -39,9 +39,14 @@ data = {}
 columns = []
 loadData("/data/york_hour_2013.csv", ["timestamp", "atc"], data, columns)
 
-all_features = deepcopy(columns)
-all_features.remove("target")
-all_features.remove("location")
+all_features = []
+
+all_features.extend(['leisure_area', 'landuse_area'])
+all_features.extend(['buildings_number', 'buildings_area'])
+all_features.extend(['lane_length', 'length'])
+all_features.extend(['traffic_length_car', 'traffic_length_lgv', 'traffic_length_hgv'])
+all_features.extend(['winddirection', 'windspeed', 'temperature', 'rain', 'pressure'])
+all_features.extend(['hour', 'day_of_week', 'month', 'bank_holiday', 'race_day'])
 
 log("all_features: " + str(all_features))
 
