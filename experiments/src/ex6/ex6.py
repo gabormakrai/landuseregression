@@ -120,7 +120,7 @@ for iteration in range(1, 100):
     log("\tbest_result: " + str(best_result))
     log("\tbest_step: " + str(best_step))
     log("\tcurrent: " + str(current))
-    log("\tcurrent_result: " + str(eval_one(current)))
+    log("\tcurrent_result: " + str(eval_one(tuple(current))))
 
     output.write(str(iteration))
     output.write(";")
@@ -174,7 +174,7 @@ for iteration in range(1, 100):
                 index = random.randint(0, len(possible_steps) - 1)
                 current = random_possible_steps[index]
                 log("\t\t" + str(current))
-            current_result = eval_one(current)
+            current_result = eval_one(tuple(current))
             best_result = current_result
             best_step = deepcopy(current)
 
