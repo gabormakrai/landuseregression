@@ -7,6 +7,9 @@ import random
 
 OUTPUT_FILE = "/experiments/ex6/rmse_output.csv"
 OUTPUT_LOG_FILE = "/experiments/ex6/rmse_log.txt"
+CACHE_FILE = "/experiments/ex6/ex6_cache.csv"
+
+random.seed(42)
 
 output = open(OUTPUT_FILE, "w")
 output_log = open(OUTPUT_LOG_FILE, "w")
@@ -18,6 +21,17 @@ def log(line):
     print(line)
 
 cached_results = {}
+
+# load cache results
+with open("/experiments/ex6/ex6_cache.csv") as infile:
+    for line in infile:
+        line = line.rstrip()
+        s_line = line.split(";")
+        rmse = float(s_line[0])
+        l = [s == 'True' for s in s_line[1].split(",")]
+        t = tuple(l)
+        cached_results[t] = rmse
+
 locations = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
 
 # load the data
@@ -54,6 +68,10 @@ def generate_steps(step):
 
 
 def eval_one(step):
+    
+    if step in cached_results:
+        return cached_results[step]
+    
     eval_features = []
     for i in range(0, len(all_features)):
         if step[i]:
@@ -72,12 +90,23 @@ def eval_one(step):
     
     rmse = rmseEval(all_observations, all_predictions)[1]
     
+    cached_results[step] = rmse
+    
+    # save down the cached result
+    
+    cache_output = open(CACHE_FILE, "a")
+    step_list = [str(s) for s in step]
+    step_str = ",".join(step_list)  
+    cache_output.write(str(rmse) + ";" + step_str + "\n")
+    cache_output.close()
+    
     return rmse
 
-
-best_result = eval_one(current)
+best_result = eval_one(tuple(current))
 best_step = deepcopy(current)
-cached_results[tuple(current)] = best_result
+
+global_best_result = best_result
+global_best_step = deepcopy(best_step)
 
 local_minima_counter = 0
 local_minima_limit = 3
@@ -86,15 +115,18 @@ local_minima_limit_jumps = 5
 for iteration in range(1, 100):
 
     log("iteration: " + str(iteration))
+    log("\tglobal_best_result: " + str(global_best_result))
+    log("\tglobal_best_step: " + str(global_best_step))
     log("\tbest_result: " + str(best_result))
     log("\tbest_step: " + str(best_step))
     log("\tcurrent: " + str(current))
+    log("\tcurrent_result: " + str(eval_one(current)))
 
     output.write(str(iteration))
     output.write(";")
-    output.write(str(best_result))
+    output.write(str(eval_one(current)))
     output.write(";")
-    output.write(str(best_step))
+    output.write(str(current))
     output.write("\n")
     output.flush()
 
@@ -102,13 +134,7 @@ for iteration in range(1, 100):
     possible_steps_result = []
 
     for step in generate_steps(current):
-
-        step_tuple = tuple(step)
-        if step_tuple in cached_results:
-            step_result = cached_results[step_tuple]
-        else:
-            step_result = eval_one(step)
-            cached_results[step_tuple] = step_result
+        step_result = eval_one(tuple(step))
         log("\t\t" + str(step_result) + " <- " + str(step))
         possible_steps_result.append(step_result)
 
@@ -126,6 +152,9 @@ for iteration in range(1, 100):
         log("\tFound a better one...")
         best_result = local_best_result
         best_step = local_best_step
+        if local_best_result < best_result:
+            global_best_result = best_result
+            global_best_step = deepcopy(best_step)
         current = best_step
     else:
         local_minima_counter = local_minima_counter + 1
@@ -133,12 +162,21 @@ for iteration in range(1, 100):
         if local_minima_counter < local_minima_limit:
             index = random.randint(0, len(possible_steps) - 1)
             current = possible_steps[index]
+            current_result = eval_one(current)
+            best_result = current_result
+            best_step = deepcopy(current)
             log("\tCarry on with " + str(possible_steps_result[index]) + " <- " + str(possible_steps[index]))
         else:
             local_minima_counter = 0
+            log("\tQuick random steps:")
             for _ in range(0, local_minima_limit_jumps):
                 random_possible_steps = generate_steps(current)
-
+                index = random.randint(0, len(possible_steps) - 1)
+                current = random_possible_steps[index]
+                log("\t\t" + str(current))
+            current_result = eval_one(current)
+            best_result = current_result
+            best_step = deepcopy(current)
 
 output.close()
 output_log.close()
