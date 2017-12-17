@@ -109,10 +109,10 @@ global_best_result = best_result
 global_best_step = deepcopy(best_step)
 
 local_minima_counter = 0
-local_minima_limit = 3
-local_minima_limit_jumps = 5
+local_minima_limit = 5
+local_minima_limit_jumps = 2
 
-for iteration in range(1, 100):
+for iteration in range(1, 300):
 
     log("iteration: " + str(iteration))
     log("\tglobal_best_result: " + str(global_best_result))
@@ -149,6 +149,7 @@ for iteration in range(1, 100):
     log("\tbest local: " + str(local_best_result) + " <- " + str(local_best_step))
 
     if local_best_result < best_result:
+        local_minima_counter = 0
         log("\tFound a better one...")
         best_result = local_best_result
         best_step = local_best_step
@@ -160,12 +161,8 @@ for iteration in range(1, 100):
         local_minima_counter = local_minima_counter + 1
         log("\tLocal minima " + str(local_minima_counter) + "/" + str(local_minima_limit))
         if local_minima_counter < local_minima_limit:
-            index = random.randint(0, len(possible_steps) - 1)
-            current = possible_steps[index]
-            current_result = eval_one(tuple(current))
-            best_result = current_result
-            best_step = deepcopy(current)
-            log("\tCarry on with " + str(possible_steps_result[index]) + " <- " + str(possible_steps[index]))
+            current = local_best_step
+            log("\tCarry on with " + str(local_best_result) + " <- " + str(local_best_step))
         else:
             local_minima_counter = 0
             log("\tQuick random steps:")
