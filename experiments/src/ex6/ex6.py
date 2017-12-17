@@ -124,7 +124,7 @@ for iteration in range(1, 100):
 
     output.write(str(iteration))
     output.write(";")
-    output.write(str(eval_one(current)))
+    output.write(str(eval_one(tuple(current))))
     output.write(";")
     output.write(str(current))
     output.write("\n")
@@ -162,7 +162,7 @@ for iteration in range(1, 100):
         if local_minima_counter < local_minima_limit:
             index = random.randint(0, len(possible_steps) - 1)
             current = possible_steps[index]
-            current_result = eval_one(current)
+            current_result = eval_one(tuple(current))
             best_result = current_result
             best_step = deepcopy(current)
             log("\tCarry on with " + str(possible_steps_result[index]) + " <- " + str(possible_steps[index]))
