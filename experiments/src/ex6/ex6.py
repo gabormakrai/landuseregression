@@ -23,7 +23,7 @@ def log(line):
 cached_results = {}
 
 # load cache results
-with open("/experiments/ex6/ex6_cache.csv") as infile:
+with open(CACHE_FILE) as infile:
     for line in infile:
         line = line.rstrip()
         s_line = line.split(";")
