@@ -32,7 +32,7 @@ with open(CACHE_FILE) as infile:
         t = tuple(l)
         cached_results[t] = rmse
 
-locations = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+locations = [2.0, 3.0, 4.0, 6.0, 8.0]
 
 # load the data
 data = {}
