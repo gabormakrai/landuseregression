@@ -1,160 +1,184 @@
-import numpy as np
-from data.data import loadData
-from crossvalidation import findOutKForValidation, splitDataForXValidation2
-from error import raeEval
-from sklearn.ensemble.forest import RandomForestRegressor
 from copy import deepcopy
-from random import Random
+from data.data import loadData
+from ex2.crossvalidation import splitDataForXValidation
+from sklearn.ensemble.forest import RandomForestRegressor
+from eval.rmse import rmseEval
+import random
 
-DATA_FILE = "/media/sf_lur/data/" + "data3_hour_2013.csv"
+OUTPUT_FILE = "/experiments/ex16/rmse_output.csv"
+OUTPUT_LOG_FILE = "/experiments/ex16/rmse_log.txt"
+CACHE_FILE = "/experiments/ex16/ex16_cache.csv"
 
-def loadHeader(fileName):
-    with open(fileName) as infile:
-        for line in infile:
-            line = line.rstrip()
-            headers = line.split(',')
-            break
-    
-    headers.remove("timestamp")
-    headers.remove("target")
-    headers.remove("location")
-    return headers
+random.seed(42)
 
-def generateForwardCases(vector, cases):
-    for i in range(0, len(features)):
-    #for i in range(0, 3):
-        if vector[i] == 0:
-            case = deepcopy(vector)
-            case[i] = 1
-            cases.append(case)
-    
-def generateBackwardCases(vector, cases):
-    currentFeaturesCount = 0
-    for v in vector:
-        currentFeaturesCount = currentFeaturesCount + v
-    if currentFeaturesCount == 1:
-        return
-    
-    featureIndexes = []
-    for i in range(0, len(vector)):
-        if vector[i] == 1:
-            featureIndexes.append(i)
-    
-    for fi in featureIndexes:
-        case = deepcopy(vector)
-        case[fi] = 0
-        cases.append(case)
-        
-def convertVectorToFeatureNames(vector, features):
-    res = []
-    for i in range(0, len(vector)):
-        if vector[i] == 1:
-            res.append(features[i])
-    return res
+output = open(OUTPUT_FILE, "w")
+output_log = open(OUTPUT_LOG_FILE, "w")
 
-def evaluateFeatures(vector, features, data):
-    featureToUse = []
-    for i in range(len(vector)):
-        if vector[i] == 1:
-            featureToUse.append(features[i])
-         
-    combinedRae = []
-     
-    # modelling
-    for location in locationValues:
-         
-        trainX, testX, trainY, testY = splitDataForXValidation2(location, "location", data, featureToUse, "target")
-         
-        model = RandomForestRegressor(min_samples_leaf = 9, n_estimators = 59, n_jobs = -1, random_state = 42)
-         
-        model.fit(trainX, trainY)
-         
-        prediction = model.predict(testX)
-         
-        rae = raeEval(testY, prediction)
-                 
-        for v in rae[1]:
-            combinedRae.append(v)
-             
-    p50 = np.percentile(np.array(combinedRae), 50) 
+def log(line):
+    output_log.write(line)
+    output_log.write("\n")
+    output_log.flush()
+    print(line)
 
-    return p50
+cached_results = {}
 
-# load data
+# load cache results
+with open(CACHE_FILE) as infile:
+    for line in infile:
+        line = line.rstrip()
+        s_line = line.split(";")
+        rmse = float(s_line[0])
+        l = [s == 'True' for s in s_line[1].split(",")]
+        t = tuple(l)
+        cached_results[t] = rmse
+
+locations = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+
+# load the data
 data = {}
 columns = []
-loadData(DATA_FILE, ["timestamp"], data, columns)
-locationValues = findOutKForValidation("location", data)
+loadData("/data/york3_hour_2013.csv", ["timestamp"], data, columns)
 
-print("Load features (columns) from file " + DATA_FILE)
+all_features = []
+
+all_features.extend(['leisure_area', 'landuse_area'])
+all_features.extend(['buildings_number', 'buildings_area'])
+all_features.extend(['lane_length', 'length'])
+all_features.extend(['atc'])
+all_features.extend(['winddirection', 'windspeed', 'temperature', 'rain', 'pressure'])
+all_features.extend(['hour', 'day_of_week', 'month', 'bank_holiday', 'race_day'])
+
+log("all_features: " + str(all_features))
+
+current = [True for _ in all_features]
+
+def generate_steps(step):
+    next_steps = []
+
+    # generate forward steps
+    for i in range(0, len(step)):
+        if not step[i]:
+            new_step = deepcopy(step)
+            new_step[i] = True
+            next_steps.append(new_step)
+
+    # generate backwards steps
+    for i in range(0, len(step)):
+        if step[i]:
+            new_step = deepcopy(step)
+            new_step[i] = False
+            next_steps.append(new_step)
+
+    return next_steps
+
+
+def eval_one(step):
     
-features = loadHeader(DATA_FILE)
-
-print("  Features:")
-print("  " + str(features))
-print("  #: " + str(len(features)))
-
-vector = []
-for i in range(0, len(features)):
-    vector.append(0)
-
-for i in range(0, len(features)):
-    if features[i] == "hour":
-        vector[i] = 1
-        break
-
-print("Start with only \"hour\"...")
-
-random = Random(42)
-randomSteps = 0
-globalBestRes = 2.0
-globalBestVector = 0
-
-previousRes = 2.0
-
-for step in range(0, 1000000):
-    # generate the possible feature oportunities
-    cases = []
-    generateForwardCases(vector, cases)
-    generateBackwardCases(vector, cases)
+    if step in cached_results:
+        return cached_results[step]
     
-    result = []
+    eval_features = []
+    for i in range(0, len(all_features)):
+        if step[i]:
+            eval_features.append(all_features[i])
     
-    # random step
-    if randomSteps != 0:
-        nextCase = random.randint(0, len(cases) - 1)
-        vector = cases[nextCase] 
-        print("Random: " + str(convertVectorToFeatureNames(vector, features)))
-        randomSteps = randomSteps - 1
-        continue
-            
-    # evaluate all of them
-    for case in cases:
-        res = evaluateFeatures(case, features, data)
-        print("  " + str(convertVectorToFeatureNames(case, features)) + " -> " + str(res))
-        result.append(res)
+    all_predictions = []
+    all_observations = []
     
-    # find the best
-    bestRes = 2.0
-    bestVector = 0 
-    for i in range(0, len(result)):
-        if result[i] < bestRes:
-            bestRes = result[i]
-            bestVector = cases[i]
-            
-    # compare this to global res
-    if bestRes < globalBestRes:
-        globalBestRes = bestRes
-        globalBestVector = bestVector
-            
-    # print out result
-    vector = bestVector
-    print("BestGlobal: " + str(convertVectorToFeatureNames(globalBestVector, features)) + " -> " + str(globalBestRes))
-    print("Best: " + str(convertVectorToFeatureNames(vector, features)) + " -> " + str(bestRes))
+    for location in locations:
+        trainX, testX, trainY, testY = splitDataForXValidation(location, "location", data, eval_features, "target")
+        model = RandomForestRegressor(min_samples_leaf = 2, random_state=42, n_estimators=650, n_jobs=-1)
+        model.fit(trainX, trainY)
+        predictions = model.predict(testX)
+        all_observations.extend(testY)
+        all_predictions.extend(predictions)
+    
+    rmse = rmseEval(all_observations, all_predictions)[1]
+    
+    cached_results[step] = rmse
+    
+    # save down the cached result
+    
+    cache_output = open(CACHE_FILE, "a")
+    step_list = [str(s) for s in step]
+    step_str = ",".join(step_list)  
+    cache_output.write(str(rmse) + ";" + step_str + "\n")
+    cache_output.close()
+    
+    return rmse
 
-    # compare this to previousBest
-    if previousRes < bestRes:
-        randomSteps = 5
-        previousRes = 2.0
+best_result = eval_one(tuple(current))
+best_step = deepcopy(current)
+
+global_best_result = best_result
+global_best_step = deepcopy(best_step)
+
+local_minima_counter = 0
+local_minima_limit = 5
+local_minima_limit_jumps = 2
+
+for iteration in range(1, 300):
+
+    log("iteration: " + str(iteration))
+    log("\tglobal_best_result: " + str(global_best_result))
+    log("\tglobal_best_step: " + str(global_best_step))
+    log("\tbest_result: " + str(best_result))
+    log("\tbest_step: " + str(best_step))
+    log("\tcurrent: " + str(current))
+    log("\tcurrent_result: " + str(eval_one(tuple(current))))
+
+    output.write(str(iteration))
+    output.write(";")
+    output.write(str(eval_one(tuple(current))))
+    output.write(";")
+    output.write(str(current))
+    output.write("\n")
+    output.flush()
+
+    possible_steps = generate_steps(current)
+    possible_steps_result = []
+
+    for step in generate_steps(current):
+        step_result = eval_one(tuple(step))
+        log("\t\t" + str(step_result) + " <- " + str(step))
+        possible_steps_result.append(step_result)
+
+    local_best_result = possible_steps_result[0]
+    local_best_step = possible_steps[0]
+
+    for i in range(0, len(possible_steps)):
+        if possible_steps_result[i] < local_best_result:
+            local_best_result = possible_steps_result[i]
+            local_best_step = possible_steps[i]
+
+    log("\tbest local: " + str(local_best_result) + " <- " + str(local_best_step))
+
+    if local_best_result < best_result:
+        local_minima_counter = 0
+        log("\tFound a better one...")
+        best_result = local_best_result
+        best_step = local_best_step
+        if global_best_result > best_result:
+            global_best_result = best_result
+            global_best_step = deepcopy(best_step)
+        current = best_step
     else:
-        previousRes = bestRes
+        local_minima_counter = local_minima_counter + 1
+        log("\tLocal minima " + str(local_minima_counter) + "/" + str(local_minima_limit))
+        if local_minima_counter < local_minima_limit:
+            current = local_best_step
+            log("\tCarry on with " + str(local_best_result) + " <- " + str(local_best_step))
+        else:
+            local_minima_counter = 0
+            log("\tQuick random steps:")
+            for _ in range(0, local_minima_limit_jumps):
+                random_possible_steps = generate_steps(current)
+                index = random.randint(0, len(possible_steps) - 1)
+                current = random_possible_steps[index]
+                log("\t\t" + str(current))
+            current_result = eval_one(tuple(current))
+            best_result = current_result
+            best_step = deepcopy(current)
+
+output.close()
+output_log.close()
