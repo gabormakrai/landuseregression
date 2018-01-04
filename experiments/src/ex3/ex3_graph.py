@@ -147,10 +147,6 @@ for group in groups:
  
     dataToPlot.append(groupData)
          
-# ax.boxplot(dataToPlot, showfliers=False)
-# ax.set_xticklabels(groupNames, rotation='vertical')
-# plt.savefig(OUTPUT_FILE_3)
-
 x = [i for i in range(0, len(dataToPlot))]
 ax.plot(x, dataToPlot)
 ax.set_xticks(x)
