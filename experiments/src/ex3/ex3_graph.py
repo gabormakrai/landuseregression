@@ -30,7 +30,7 @@ def loadData(fileName):
             
 data = loadData(INPUT_DATA_FILE)
 
-fig = plt.figure(1, figsize=(40, 20))
+fig = plt.figure(figsize=(9.36*1.5, 5.76*1.5))
 ax = fig.add_subplot(111)
 
 dataToPlot = []
@@ -58,12 +58,25 @@ for group in groups:
 x = [i for i in range(0, len(dataToPlot))]
 ax.plot(x, dataToPlot)
 ax.set_xticks(x)
-ax.set_xticklabels(groups, rotation='vertical')
+
+groups_names = [s.replace("lu", "L") for s in groups]
+groups_names = [s.replace("we", "W") for s in groups_names]
+groups_names = [s.replace("ti", "T") for s in groups_names]
+groups_names = [s.replace("td", "V") for s in groups_names]
+groups_names = [s.replace("ts", "R") for s in groups_names]
+groups_names = [s.replace("to", "B") for s in groups_names]
+
+ax.set_xticklabels(groups_names, rotation='vertical')
 plt.ylim(10.0, 22.0)
+plt.ylabel("RMSE (ug/m3)")
+plt.xlabel("Data sources")
+
+fig.subplots_adjust(bottom=0.2)
 
 plt.savefig(OUTPUT_FILE_1)
+plt.close()
 
-fig = plt.figure(2, figsize=(8, 8))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
  
 dataWithoutTimeWeather = []
@@ -96,14 +109,16 @@ print("dataWithWeather: " + str(len(dataWithWeather)))
 print("dataWithTime: " + str(len(dataWithTime)))
 print("dataWithTimeWeather: " + str(len(dataWithTimeWeather)))
  
-ax.boxplot([dataWithoutTimeWeather, dataWithWeather, dataWithTime, dataWithTimeWeather], showfliers=False)
-ax.set_xticklabels(["w/o T, w/o W", "w/ W", "w/ T", "w/ T+W"] )
-plt.ylim(0.0, 30.0)
+ax.boxplot([dataWithoutTimeWeather, dataWithTime, dataWithWeather, dataWithTimeWeather], showfliers=False)
+ax.set_xticklabels(["w/o T, w/o W", "w/ T", "w/ W", "w/ T+W"] )
+plt.ylim(10.0, 22.0)
 plt.ylabel("RMSE (ug/m3)")
+plt.xlabel("Data sources")
  
 plt.savefig(OUTPUT_FILE_2)
+plt.close()
  
-fig = plt.figure(3, figsize=(13, 13))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
  
 referenceData = data["lu0to0ts0td0we1ti1"]
@@ -132,9 +147,28 @@ for group in groups:
  
     dataToPlot.append(groupData)
          
-ax.boxplot(dataToPlot, showfliers=False)
-ax.set_xticklabels(groupNames, rotation='vertical')
-plt.ylim(0.0, 2.0)
-plt.ylabel("Relative error to only (T+W) result")
+# ax.boxplot(dataToPlot, showfliers=False)
+# ax.set_xticklabels(groupNames, rotation='vertical')
+# plt.savefig(OUTPUT_FILE_3)
+
+x = [i for i in range(0, len(dataToPlot))]
+ax.plot(x, dataToPlot)
+ax.set_xticks(x)
+
+groups_names = [s.replace("lu", "L") for s in groupNames]
+groups_names = [s.replace("we", "W") for s in groups_names]
+groups_names = [s.replace("ti", "T") for s in groups_names]
+groups_names = [s.replace("td", "V") for s in groups_names]
+groups_names = [s.replace("ts", "R") for s in groups_names]
+groups_names = [s.replace("to", "B") for s in groups_names]
+
+ax.set_xticklabels(groups_names, rotation='vertical')
+plt.ylim(0.9, 1.35)
+plt.ylabel("Relative RMSE to only (T+W) result")
+plt.xlabel("Additional data sources to (T+W)")
+
+fig.subplots_adjust(bottom=0.2)
+
 plt.savefig(OUTPUT_FILE_3)
+plt.close()
 
