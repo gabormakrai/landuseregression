@@ -68,6 +68,7 @@ for location in locations:
     predictionTW = model.predict(testX)
     rmse = rmseEval(testY, predictionTW)[1]
     log("\tTW:" + str(rmse))
+    allPredictionsTW.extend(predictionTW)
 
     # tw_4stations
     trainX, testX, trainY, testY = splitDataForXValidation(location, "location", data, twa_features, "target")
@@ -76,6 +77,7 @@ for location in locations:
     predictionTWA = model.predict(testX)
     rmse = rmseEval(testY, predictionTWA)[1]
     log("\tTWA:" + str(rmse))
+    allPredictionsTWA.extend(predictionTWA)
     
     #combination
     classifier_X = []
@@ -106,11 +108,11 @@ for location in locations:
     log("\tTW+TWA:" + str(rmse))
     allPredictions.extend(combined_prediction)
 
-rmse = rmseEval(allObservations, allPredictionsTW)[0]
+rmse = rmseEval(allObservations, allPredictionsTW)[1]
 log("TW: " + str(rmse))
-rmse = rmseEval(allObservations, allPredictionsTWA)[0]
+rmse = rmseEval(allObservations, allPredictionsTWA)[1]
 log("TWA: " + str(rmse))
-rmse = rmseEval(allObservations, allPredictions)[0]
+rmse = rmseEval(allObservations, allPredictions)[1]
 log("TW+TWA: " + str(rmse))
     
 output.close()
