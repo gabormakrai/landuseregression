@@ -4,7 +4,7 @@ from sklearn.ensemble.forest import RandomForestRegressor
 from eval.rmse import rmseEval
 
 DATA_FILE = "/data/york3_hour_2013.csv"
-OUTPUT_FILE = "/experiments/ex27/ex27_tw_baseline.csv"
+OUTPUT_FILE = "/experiments/ex27/ex27_tw_baseline.txt"
 
 output = open(OUTPUT_FILE, 'w')
 
