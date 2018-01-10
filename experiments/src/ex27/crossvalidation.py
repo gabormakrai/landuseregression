@@ -112,3 +112,38 @@ def splitDataForXValidationSampled2(value1, value2, validationColumn, data, colu
             
     return trainX1, trainX2, trainY1, trainY2, testX, testY     
 
+def splitDataForXValidationForCombination(value, value_to_filter, validationColumn, data, columns, targetColumn):
+        
+    columnsWithoutValidationAndTarget = deepcopy(columns)
+    if validationColumn in columnsWithoutValidationAndTarget:
+        columnsWithoutValidationAndTarget.remove(validationColumn)
+    if targetColumn in columnsWithoutValidationAndTarget:
+        columnsWithoutValidationAndTarget.remove(targetColumn)
+    
+    trainX = []
+    testX = []
+    trainY = []
+    testY = []
+        
+    for i in range(0, len(data[validationColumn])):
+        targetX = None
+        targetY = None
+        if data[validationColumn][i] == value:
+            targetX = testX
+            targetY = testY
+        elif data[validationColumn][i] != value_to_filter:
+            targetX = trainX
+            targetY = trainY
+        else:
+            continue
+            
+        X = []
+        for c in columnsWithoutValidationAndTarget:
+            X.append(data[c][i])
+            
+        Y = data[targetColumn][i]
+        
+        targetY.append(Y)
+        targetX.append(X)
+            
+    return trainX, testX, trainY, testY
