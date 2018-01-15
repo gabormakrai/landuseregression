@@ -30,7 +30,7 @@ for location in locations:
     normalizer_Y = StandardScaler()
     trainY = normalizer_Y.fit_transform(trainY)
     testY = normalizer_Y.transform(testY)
-    model = BaggingRegressor(base_estimator=SVR(kernel='rbf', C=38, cache_size=5000), max_samples=5500,n_estimators=10, verbose=0, n_jobs=-1)
+    model = BaggingRegressor(base_estimator=SVR(kernel='rbf', C=40, cache_size=5000), max_samples=4200,n_estimators=10, verbose=0, n_jobs=-1)
     model.fit(trainX, trainY)
     prediction = model.predict(testX)
     prediction = normalizer_Y.inverse_transform(prediction)

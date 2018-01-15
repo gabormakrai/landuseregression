@@ -9,6 +9,12 @@ OUTPUT_DATA_FILE = "/experiments/ex2/ex2_ann.csv"
 
 locations = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
 
+parameters = {"iteration": 7, 
+              "hidden_neurons":230, 
+              "hidden_layers": 1, 
+              "hidden_type": "Sigmoid",
+              "learning_rate": 0.00001}
+
 # load the data
 data = {}
 columns = []
@@ -32,11 +38,17 @@ for location in locations:
     normalizer_Y = StandardScaler()
     trainY = normalizer_Y.fit_transform(trainY)
     testY = normalizer_Y.transform(testY)
-        
+
+    layers = []
+    for _ in range(0, parameters["hidden_layers"]):
+        layers.append(Layer(parameters["hidden_type"], units=parameters["hidden_neurons"]))
+    layers.append(Layer("Linear"))
     model = Regressor(
-        layers=[Layer('Linear', units=10), Layer('Linear')],
-        learning_rate=0.00001,
-        n_iter=1)
+        layers=layers,
+        learning_rate=parameters["learning_rate"],
+        n_iter=parameters["iteration"],
+        random_state=42
+        )        
         
     X = np.array(trainX)
     y = np.array(trainY)
