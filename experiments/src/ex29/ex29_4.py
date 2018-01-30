@@ -71,3 +71,4 @@ for n_estimators in range(50, 1000):
         output.flush()
         
 output_log.close()
+output.close()
