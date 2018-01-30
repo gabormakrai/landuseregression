@@ -47,7 +47,7 @@ def eval_one(min_samples_leaf, n_estimators):
         test_station_set = set([float(s) for s in testStations])
         
         trainX, testX, trainY, testY = splitDataForXValidation(train_station_set, test_station_set, "location", data, all_features, "target")
-        model = RandomForestRegressor(min_samples_leaf = 9, n_estimators = 59, n_jobs = -1, random_state=42)
+        model = RandomForestRegressor(min_samples_leaf = min_samples_leaf, n_estimators = n_estimators, n_jobs = -1, random_state=42)
         model.fit(trainX, trainY)
         prediction_ALL = model.predict(testX)
         rmse = rmseEval(testY, prediction_ALL)[1]
