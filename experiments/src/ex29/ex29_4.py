@@ -68,6 +68,6 @@ for n_estimators in range(50, 1000):
         output.write(",")
         output.write(str(rmse))
         output.write("\n")
-        output.fluse()
+        output.flush()
         
 output_log.close()
