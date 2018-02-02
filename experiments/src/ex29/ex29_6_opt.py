@@ -7,6 +7,7 @@ from eval.rmse import rmseEval
 import random
 from ex29.crossvalidation import splitDataForXValidation
 
+DATA_FILE = "/data/london3_hour_2016.csv"
 OUTPUT_FILE = "/experiments/ex29/ex29_6_rmse_output.csv"
 OUTPUT_LOG_FILE = "/experiments/ex29/ex29_6_rmse_log.txt"
 CACHE_FILE = "/experiments/ex27/ex29_6_cache.csv"
@@ -44,7 +45,7 @@ if os.path.isfile(CACHE_FILE):
 # load the data
 data = {}
 columns = []
-loadData("/data/york3_hour_2013.csv", ["timestamp"], data, columns)
+loadData(DATA_FILE, ["timestamp"], data, columns)
 
 all_features = ['building_area', 'building_count', 'natural_area', 'leisure_area', 'landuse_area', 'lane_length', 'length', 'atc', 'windspeed', 'windspeed', 'rain', 'temperature', 'humidity', 'pressure', 'hour', 'day_of_week', 'month', 'bank_holiday']
 tw_features = ['winddirection', 'windspeed', 'rain', 'temperature',  'humidity', 'pressure', 'hour', 'day_of_week', 'month', 'bank_holiday']
