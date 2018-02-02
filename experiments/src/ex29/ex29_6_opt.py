@@ -140,10 +140,8 @@ def eval_one(step):
         model.fit(trainX, trainY)
         prediction_TWA = model.predict(testX)
         rmse = rmseEval(testY, prediction_TWA)[1]
-        log("\tTWA rmse: " + str(rmse))
         
         group2s = [groups[i] for i in range(0, len(groups)) if i != group]
-        log("group2s: " + str(group2s))
         
         #combination
         classifier_X = []
@@ -179,7 +177,6 @@ def eval_one(step):
         classifier_prediction = model.predict(testX)
         combined_prediction = generate_combined_prediction(classifier_prediction, prediction_TW, prediction_TWA)
         rmse = rmseEval(testY, combined_prediction)[1]
-        log("\tTW+TWA:" + str(rmse))
         all_pred_combined.extend(combined_prediction)    
         
     rmse = rmseEval(all_observations, all_pred_combined)[1]
@@ -206,7 +203,7 @@ local_minima_counter = 0
 local_minima_limit = 5
 local_minima_limit_jumps = 2
 
-for iteration in range(1, 300):
+for iteration in range(1, 100):
 
     log("iteration: " + str(iteration))
     log("\tglobal_best_result: " + str(global_best_result))
