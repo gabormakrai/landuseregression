@@ -131,7 +131,7 @@ for group in range(0, len(groups)):
     rmse = rmseEval(testY, prediction_TWA)[1]
     log("\tTWA rmse: " + str(rmse))
     all_pred_TWA.extend(prediction_TWA)
-    times_TW.append(time.time() - start_time)
+    times_TWA.append(time.time() - start_time)
 
     start_time = time.time()
 
