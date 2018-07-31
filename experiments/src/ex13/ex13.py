@@ -15,8 +15,8 @@ stationNames["6.0"] = "Lawrence"
 stationNames["7.0"] = "Nunnery"
 stationNames["8.0"] = "Fishergate"
 
-DATA_FILE = "/media/sf_lur/data/" + "data3_hour_2013.csv"
-DATA_FILE2 = "/media/sf_lur/data/" + "data_hour_2013.csv"
+DATA_FILE = "/data/york3_hour_2013.csv"
+DATA_FILE2 = "/data/york_hour_2013.csv"
 
 # load data
 data = {}
