@@ -48,14 +48,14 @@ for i in range(0, len(data["target"])):
     value = data["target"][i]
     stationData[location].append(value)
 
-fig = plt.figure(figsize=(9.36*1.7, 5.76*1.3))
+fig = plt.figure(figsize=(20, 7))
 ax = fig.add_subplot(111)
 
 stationNames = []
 
 dataToPlot = []
 for s in all_station2:
-    stationNames.append(s + " (" + str(len(stationData[s])) + ")\nGroup " + str(station_to_group[s] + 1))
+    stationNames.append(str(int(float(s))) + " (" + str(len(stationData[s])) + ")\nGroup " + str(station_to_group[s] + 1))
     dataToPlot.append(stationData[s])
 
 ax.boxplot(dataToPlot, showfliers=False)

@@ -50,7 +50,7 @@ for group in range(0, len(groups)):
     test_station_set = set([float(s) for s in testStations])
     
     trainX, testX, trainY, testY = splitDataForXValidation(train_station_set, test_station_set, "location", data, tw_features, "target")
-    model = RandomForestRegressor(min_samples_leaf = 9, n_estimators = 59, n_jobs = -1, random_state=42)
+    model = RandomForestRegressor(min_samples_leaf = 29, n_estimators = 64, n_jobs = -1, random_state=42)
     model.fit(trainX, trainY)
     prediction_TW = model.predict(testX)
     rmse = rmseEval(testY, prediction_TW)[1]
@@ -59,7 +59,7 @@ for group in range(0, len(groups)):
     all_pred_TW.extend(prediction_TW)
      
     trainX, testX, trainY, testY = splitDataForXValidation(train_station_set, test_station_set, "location", data, twa_features, "target")
-    model = RandomForestRegressor(min_samples_leaf = 9, n_estimators = 59, n_jobs = -1, random_state=42)
+    model = RandomForestRegressor(min_samples_leaf = 29, n_estimators = 64, n_jobs = -1, random_state=42)
     model.fit(trainX, trainY)
     prediction_TWA = model.predict(testX)
     rmse = rmseEval(testY, prediction_TWA)[1]
@@ -67,7 +67,7 @@ for group in range(0, len(groups)):
     all_pred_TWA.extend(prediction_TWA)
     
     trainX, testX, trainY, testY = splitDataForXValidation(train_station_set, test_station_set, "location", data, all_features, "target")
-    model = RandomForestRegressor(min_samples_leaf = 9, n_estimators = 59, n_jobs = -1, random_state=42)
+    model = RandomForestRegressor(min_samples_leaf = 29, n_estimators = 64, n_jobs = -1, random_state=42)
     model.fit(trainX, trainY)
     prediction_ALL = model.predict(testX)
     rmse = rmseEval(testY, prediction_ALL)[1]

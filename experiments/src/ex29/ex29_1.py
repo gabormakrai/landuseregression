@@ -39,7 +39,7 @@ for station in stationNames:
 
 medianSortedStationNames = sorted(l, key=lambda tup: tup[1])
 
-fig = plt.figure(figsize=(9.36*1.3, 5.76*1.3))
+fig = plt.figure(figsize=(20, 7))
 ax = fig.add_subplot(111)
 
 stationNames = []

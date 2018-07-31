@@ -13,7 +13,7 @@ groups = [['71.0', '70.0', '38.0', '55.0', '91.0', '73.0', '89.0'],
 ['69.0', '52.0', '26.0', '79.0', '9.0', '16.0', '13.0'],
 ['15.0', '57.0', '24.0', '19.0', '43.0', '33.0', '51.0']]
 
-all_features = ['building_area', 'building_count', 'natural_area', 'leisure_area', 'landuse_area', 'lane_length', 'length', 'atc', 'windspeed', 'windspeed', 'rain', 'temperature', 'humidity', 'pressure', 'hour', 'day_of_week', 'month', 'bank_holiday']
+all_features = ['building_area', 'building_count', 'natural_area', 'leisure_area', 'landuse_area', 'lane_length', 'length', 'atc', 'windspeed', 'winddirection', 'rain', 'temperature', 'humidity', 'pressure', 'hour', 'day_of_week', 'month', 'bank_holiday']
 
 output_log = open(OUTPUT_LOG_FILE, "w")
 output = open(OUTPUT_FILE, "w")
@@ -60,7 +60,7 @@ def eval_one(min_samples_leaf, n_estimators):
     return rmse
 
 for n_estimators in range(50, 1000):
-    for min_samples_leaf in range(2,6):
+    for min_samples_leaf in range(2,200):
         rmse = eval_one(min_samples_leaf, n_estimators)
         output.write(str(min_samples_leaf))
         output.write(",")
