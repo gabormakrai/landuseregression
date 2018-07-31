@@ -31,7 +31,7 @@ def doPrediction(locations, data, columns, features, columns2, outputFileName):
     for location in locations:
         trainX, testX, trainY, testY, dataY = splitDataForXValidation(location, "location", data, features, columns, "target")
         print("\tT+W #train: " + str(len(trainY)) + ", #test:" + str(len(testY)))
-        model = RandomForestRegressor(min_samples_leaf = 9, n_estimators = 59, n_jobs = -1, random_state=42)
+        model = RandomForestRegressor(min_samples_leaf = 2, n_estimators = 650, n_jobs = -1, random_state=42)
         model.fit(trainX, trainY)
         prediction = model.predict(testX)
         rmse = rmseEval(testY, prediction)[1]
@@ -69,7 +69,7 @@ def doPrediction(locations, data, columns, features, columns2, outputFileName):
 def doBoxplot(fileName, title, yAxis, showFliers, data, names):
     
 #    fig = plt.figure(None, figsize=(12, 10))
-    fig = plt.figure(None, figsize=(7, 6))
+    fig = plt.figure(None, figsize=(13, 8))
     
     ax = fig.add_subplot(111)
 

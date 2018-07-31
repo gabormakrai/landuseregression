@@ -2,9 +2,8 @@ from data.data import loadData
 from copy import deepcopy
 from ex18_lib import doPrediction
 
-#DATA_FILE = "/media/sf_lur/data/" + "data_hour_2013.csv"
-DATA_FILE = "/media/sf_lur/data/" + "data3_hour_2013.csv"
-OUTPUT_DIRECTORY = "/media/sf_lur/experiments/ex18/"
+DATA_FILE = "/data/york3_hour_2013.csv"
+OUTPUT_DIRECTORY = "/experiments/ex18/"
 
 #locations = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
 locations = [2.0, 3.0, 4.0, 8.0]
