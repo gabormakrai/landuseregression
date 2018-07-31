@@ -21,7 +21,7 @@ with open(INPUT_FILE) as infile:
         rmse = float(s_line[3])
         data[method][p][neighbours] = rmse
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
  
 names = []
@@ -45,7 +45,7 @@ plt.legend()
  
 plt.savefig(OUTPUT_FILE_1)
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
  
 names = []

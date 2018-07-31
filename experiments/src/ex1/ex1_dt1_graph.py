@@ -14,7 +14,7 @@ with open(INPUT_FILE) as infile:
         s_line = line.split(',')
         data[s_line[0]].append(float(s_line[2]))
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
 
 names = []

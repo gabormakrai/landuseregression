@@ -20,7 +20,7 @@ with open(INPUT_FILE) as infile:
         max_samples = int(s_line[2])
         data[n_estimators][c][max_samples] = float(s_line[3])
 
-fig = plt.figure(figsize=(10, 10))
+fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
  
 names = []
@@ -28,7 +28,7 @@ dataToPlot = []
  
 x = range(5,15)
 
-for c in [100, 300, 600, 1000, 1200, 1500, 2000, 3000]:
+for c in [100]: #, 300, 600, 1000, 1200, 1500, 2000, 3000]:
     for samples in [1000, 2000, 3000, 4000, 5000]:
         names.append("samples_" + str(samples) +",c_" + str(c))
         d = []
@@ -41,6 +41,5 @@ for i in range(0, len(names)):
  
 plt.ylabel("RMSE (ug/m3)")
 plt.xlabel("Estimators")
-#plt.legend()
  
 plt.savefig(OUTPUT_FILE_1)
