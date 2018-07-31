@@ -30,7 +30,7 @@ def loadData(fileName):
             
 data = loadData(INPUT_DATA_FILE)
 
-fig = plt.figure(figsize=(9.36*1.5, 5.76*1.5))
+fig = plt.figure(figsize=(20, 14))
 ax = fig.add_subplot(111)
 
 dataToPlot = []
