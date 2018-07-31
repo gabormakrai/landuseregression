@@ -8,9 +8,9 @@ import math
 from ex14_lib import doLineChart
 from ex14_lib import writeOutWeeklyData
 
-DATA_FILE = "/media/sf_lur/data/" + "data_hour_2013.csv"
-DATA_FILE2 = "/media/sf_lur/data/" + "data3_hour_2013.csv"
-OUTPUT_DIRECTORY = "/media/sf_lur/experiments/ex14/"
+DATA_FILE = "/data/york_hour_2013.csv"
+DATA_FILE2 = "/data/york3_hour_2013.csv"
+OUTPUT_DIRECTORY = "/experiments/ex14/"
 
 locations = [2.0, 3.0, 4.0, 6.0, 8.0]
 locations2 = [2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
@@ -94,7 +94,7 @@ for location in locations:
     
     trainX, testX, trainY, testY, trainTimestamp, testTimestamp = splitDataForXValidation(location, "location", data, featureTW, "target", timestampData)
     print("\tT+W (on data without ATC) #train: " + str(len(trainY)) + ", #test:" + str(len(testY)))
-    model = RandomForestRegressor(min_samples_leaf = 9, n_estimators = 59, n_jobs = -1, random_state=42)
+    model = RandomForestRegressor(min_samples_leaf = 2, random_state=42, n_estimators=650, n_jobs=-1)
     model.fit(trainX, trainY)
     prediction = model.predict(testX)
     rmse = rmseEval(testY, prediction)[1]
@@ -106,7 +106,7 @@ for location in locations:
     
     trainX, testX, trainY, testY, trainTimestamp, testTimestamp = splitDataForXValidation(location, "location", data2, featureTWAtc, "target", timestampData2)                  
     print("\tT+W+Atc #train: " + str(len(trainY)) + ", #test:" + str(len(testY)))
-    model = RandomForestRegressor(min_samples_leaf = 9, n_estimators = 59, n_jobs = -1, random_state=42)
+    model = RandomForestRegressor(min_samples_leaf = 2, random_state=42, n_estimators=650, n_jobs=-1)
     model.fit(trainX, trainY)
     prediction = model.predict(testX)
     rmse = rmseEval(testY, prediction)[1]
