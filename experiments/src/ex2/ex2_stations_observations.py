@@ -32,7 +32,7 @@ ax = fig.add_subplot(111)
 ax.boxplot(dataToPlot, showfliers=False)
 ax.set_xticklabels(names)
 
-plt.ylabel("Concentration levels (ug/m3)")
+plt.ylabel(r'Concentration levels ($\mu$gm${}^{-3}$)')
 plt.ylim(-5.0, 100.0)
 
 fig.subplots_adjust(bottom=0.3)
