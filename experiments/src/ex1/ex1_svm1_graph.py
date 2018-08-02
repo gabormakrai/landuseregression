@@ -39,7 +39,7 @@ for c in [100]: #, 300, 600, 1000, 1200, 1500, 2000, 3000]:
 for i in range(0, len(names)):
     ax.plot(x, dataToPlot[i], label=names[i])
  
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("Estimators")
  
 plt.savefig(OUTPUT_FILE_1)

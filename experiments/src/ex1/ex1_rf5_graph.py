@@ -31,7 +31,7 @@ for l in [2,3,4]:
         data1.append(data[x1][l])
     ax.plot(x, data1, label="min_leaf_" + str(l))
 
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("Estimators")
 plt.legend()
 

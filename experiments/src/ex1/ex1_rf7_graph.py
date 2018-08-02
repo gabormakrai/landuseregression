@@ -32,7 +32,7 @@ for ml in [5000,6000,7000]:
         data1.append(data[x1][ml])
     ax.plot(x, data1, label="max_leaf_" + str(ml))
 
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("Estimators")
 plt.legend()
 

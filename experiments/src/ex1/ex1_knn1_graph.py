@@ -39,7 +39,7 @@ for p in [1, 2, 3, 4]:
 for i in range(0, len(names)):
     ax.plot(x, dataToPlot[i], label=names[i])
  
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("neighbours")
 plt.legend()
  
@@ -63,7 +63,7 @@ for p in [1, 2, 3, 4]:
 for i in range(0, len(names)):
     ax.plot(x, dataToPlot[i], label=names[i])
  
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("neighbours")
 plt.legend()
  

@@ -40,7 +40,7 @@ for i in range(0,10):
 for i in range(0, len(names)):
     ax.plot(x, dataToPlot[i], label=names[i], color=colors[i])
  
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("neurons")
 plt.legend()
  

@@ -36,7 +36,7 @@ for n in range(5,200):
         ax.plot(x, data[n], color=colors[n])
 
 plt.xlabel("depth")
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.legend()
 
 plt.savefig(OUTPUT_FILE_1)

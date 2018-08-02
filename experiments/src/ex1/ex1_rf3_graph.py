@@ -42,7 +42,7 @@ for n in range(5,21):
         ax.plot(x, data1, color=colors[n])
 
 plt.xlabel("max_leaf")
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.legend()
 
 plt.savefig(OUTPUT_FILE_1)

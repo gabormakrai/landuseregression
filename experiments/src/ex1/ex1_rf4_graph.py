@@ -33,7 +33,7 @@ for d in [10,15,20,25,30]:
     ax.plot(x, data1, label="depth_"+str(d))
 
 plt.legend()
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("Estimators")
 
 plt.savefig(OUTPUT_FILE_1)

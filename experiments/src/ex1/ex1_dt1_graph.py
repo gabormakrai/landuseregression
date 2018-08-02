@@ -26,7 +26,7 @@ ax.plot(x, data["depth"], label="method_depth")
 ax.plot(x, data["leaf"], label="method_leaf")
 ax.plot(x, data["max_leaf"], label="method_max_leaf")
 
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("parameter")
 plt.legend()
 
