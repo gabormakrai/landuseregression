@@ -1,6 +1,5 @@
 import math
 
-# calculating correlation
 def mgEval(targetData, predictionData):
 
     ln_obs = 0.0
