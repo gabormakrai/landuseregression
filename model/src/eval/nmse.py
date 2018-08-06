@@ -23,3 +23,20 @@ def nmseEval(targetData, predictionData):
 #         print("original nmse: " + str(nmse1))
 #         print("len(targetData): " + str(len(targetData)))
     return ["nmse", nmse]
+
+def nmse_from_paper(targetData, predictionData):
+    sum_target_prediction_squared = 0.0
+    sum_target = 0.0
+    sum_prediction = 0.0
+    
+    for i in range(0, len(targetData)):
+        sum_target_prediction_squared = sum_target_prediction_squared + math.pow(targetData[i] - predictionData[i], 2.0)
+        sum_target = sum_target + targetData[i]
+        sum_prediction = sum_prediction + predictionData[i]
+        
+    avg_target_prediction_squared = sum_target_prediction_squared / float(len(targetData))
+    avg_target = sum_target / float(len(targetData))
+    avg_prediction = sum_prediction / float(len(targetData))
+    
+    return avg_target_prediction_squared / (avg_target * avg_prediction)
+
