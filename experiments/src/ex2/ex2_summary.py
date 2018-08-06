@@ -6,6 +6,11 @@ from eval.correlation import correlationEval
 from eval.rsquared import rsquaredEval
 from collections import defaultdict
 from sklearn.metrics import r2_score
+from eval.fac2 import fac2Eval
+from eval.mg import mgEval
+from eval.nmse import nmse_from_paper
+from eval.fb import fbEval
+from eval.random_scatter import evalRandomScatter
 
 INPUT_DATA_DIRECTORY = "/experimntes/ex2/"
 OUTPUT_DIRECTORY = "/experiments/ex2/"
@@ -74,6 +79,12 @@ for method in methods:
     print("\tr: " + str(r))
     print("\tr2: " + str(rsquaredEval(observations[method], predictions[method])[1]))
     print("\tr2: " + str(r2_score(observations[method], predictions[method])))
+    print("\tfac2: " + str(fac2Eval(observations[method], predictions[method])))
+    print("\tmg: " + str(mgEval(observations[method], predictions[method])))
+    print("\tnmse: " + str(nmse_from_paper(observations[method], predictions[method])))
+    print("\tfb: " + str(fbEval(observations[method], predictions[method])[1]))
+    print("\trandom_scatter: " + str(evalRandomScatter(observations[method], predictions[method])))
+    
     
     rmseLevels[method] = str(rmse)[0:5]
     maeLevels[method] = str(mae)[0:5]
