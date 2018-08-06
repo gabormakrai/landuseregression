@@ -1,6 +1,6 @@
 import math
 
-def evalVg(targetData, predictionData):
+def evalRandomScatter(targetData, predictionData):
     
     sum_target_prediction_squared = 0.0
     
