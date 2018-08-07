@@ -85,7 +85,6 @@ for method in methods:
     print("\tfb: " + str(fbEval(observations[method], predictions[method])[1]))
     print("\trandom_scatter: " + str(evalRandomScatter(observations[method], predictions[method])))
     
-    
     rmseLevels[method] = str(rmse)[0:5]
     maeLevels[method] = str(mae)[0:5]
     rLevels[method] = str(r)[0:4]
@@ -93,6 +92,8 @@ for method in methods:
     fig = plt.figure(figsize=(5.76, 5.76))
     ax = fig.add_subplot(111)
     ax.scatter(observationsNormal[method], predictionsNormal[method], alpha=0.1)
+    ax.plot([0,150], [0, 75], color='red')
+    ax.plot([0,75], [0, 150], color='red')
     plt.xlim(0,150)
     plt.ylim(0,150)
     plt.ylabel(r'Prediction ($\mu$gm${}^{-3}$)')
@@ -104,6 +105,8 @@ for method in methods:
     ax = fig.add_subplot(111)
     for s in stations:
         ax.scatter(observationsPerStation[method][s], predictionsPerStation[method][s], alpha=0.1, label=stationNames[s])
+    ax.plot([0,150], [0, 75], color='red')
+    ax.plot([0,75], [0, 150], color='red')
     plt.xlim(0,150)
     plt.ylim(0,150)
     plt.ylabel(r'Prediction ($\mu$gm${}^{-3}$)')
@@ -119,6 +122,8 @@ for method in methods:
         ax = fig.add_subplot(111)
         ax.scatter(observationsNormal["ospm"], predictionsNormal["ospm"], alpha=0.02, label="OSPM",c='g')
         ax.scatter(observationsNormal[method], predictionsNormal[method], alpha=0.02, label=methodNamesOneLine[method],c='r')
+        ax.plot([0,150], [0, 75], color='red')
+        ax.plot([0,75], [0, 150], color='red')
         plt.xlim(0,150)
         plt.ylim(0,150)
         plt.ylabel(r'Prediction ($\mu$gm${}^{-3}$)')
