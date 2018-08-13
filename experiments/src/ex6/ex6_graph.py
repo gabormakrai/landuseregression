@@ -24,8 +24,8 @@ fig = plt.figure(figsize=(9.36, 5.76))
 ax = fig.add_subplot(111)
  
 x = [i for i in range(0, len(data))]
-ax.plot(x, data)
- 
+ax.bar(x, data, width=0.4, snap=False)
+
 plt.ylim(11.5, 18.0)
 plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("Feature selection iterations")
