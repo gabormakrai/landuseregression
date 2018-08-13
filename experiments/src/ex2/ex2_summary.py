@@ -68,6 +68,10 @@ for method in methods:
 rmseLevels = {}
 maeLevels = {}
 rLevels = {}
+fac2Levels = {}
+nmseLevels = {}
+fbLevels = {}
+rsLevels = {}
     
 for method in methods:
     print("Method: " + method)
@@ -79,28 +83,55 @@ for method in methods:
     print("\tr: " + str(r))
     print("\tr2: " + str(rsquaredEval(observations[method], predictions[method])[1]))
     print("\tr2: " + str(r2_score(observations[method], predictions[method])))
-    print("\tfac2: " + str(fac2Eval(observations[method], predictions[method])))
+    fac2 = fac2Eval(observations[method], predictions[method])
+    print("\tfac2: " + str(fac2))
     print("\tmg: " + str(mgEval(observations[method], predictions[method])))
-    print("\tnmse: " + str(nmse_from_paper(observations[method], predictions[method])))
-    print("\tfb: " + str(fbEval(observations[method], predictions[method])[1]))
-    print("\trandom_scatter: " + str(evalRandomScatter(observations[method], predictions[method])))
+    nmse = nmse_from_paper(observations[method], predictions[method])
+    print("\tnmse: " + str(nmse))
+    fb = fbEval(observations[method], predictions[method])[1] 
+    print("\tfb: " + str(fb))
+    rs = evalRandomScatter(observations[method], predictions[method])
+    print("\trandom_scatter: " + str(rs))
     
-    rmseLevels[method] = str(rmse)[0:5]
-    maeLevels[method] = str(mae)[0:5]
+    rmseLevels[method] = str(rmse)[0:4]
+    maeLevels[method] = str(mae)[0:4]
     rLevels[method] = str(r)[0:4]
+    fac2Levels[method] = str(fac2)[0:4]
+    nmseLevels[method] = str(nmse)[0:4]
+    if fb < 0.0:
+        fbLevels[method] = str(fb)[0:5]
+    else:
+        fbLevels[method] = str(fb)[0:4]
+    if fbLevels[method] == '-0.00':
+        fbLevels[method] = '0.00'
+    rsLevels[method] = str(rs)[0:4]
       
     fig = plt.figure(figsize=(5.76, 5.76))
     ax = fig.add_subplot(111)
-    ax.scatter(observationsNormal[method], predictionsNormal[method], alpha=0.1)
-    ax.plot([0,150], [0, 75], color='red')
+    ax.scatter(observationsNormal[method], predictionsNormal[method], alpha=0.1, label="Prediction-observation pairs")
+    ax.plot([0,150], [0, 75], color='red', label="FAC2 lines")
     ax.plot([0,75], [0, 150], color='red')
     plt.xlim(0,150)
     plt.ylim(0,150)
     plt.ylabel(r'Prediction ($\mu$gm${}^{-3}$)')
     plt.xlabel(r'Observation ($\mu$gm${}^{-3}$)')
+    plt.text(100, 143, "RMSE: " + rmseLevels[method])
+    plt.text(127, 143, "$\mu$gm${}^{-3}$")
+    plt.text(100, 137, "R: " + rLevels[method])
+    plt.text(100, 131, "FAC2: " + fac2Levels[method])
+    plt.text(100, 125, "NMSE: " + nmseLevels[method])
+    plt.text(100, 119, "FB: " + fbLevels[method])
+    plt.text(100, 113, "RS: " + rsLevels[method])
+     
+    leg = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=0.)
+     
+    for lh in leg.legendHandles: 
+        lh.set_alpha(1.0)
+         
     plt.savefig(OUTPUT_DIRECTORY + "ex2_" + method + ".png")
     plt.close()
-  
+     
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
     for s in stations:
@@ -116,7 +147,7 @@ for method in methods:
         lh.set_alpha(1.0)
     plt.savefig(OUTPUT_DIRECTORY + "ex2_" + method + "_perstation.png")
     plt.close()
-    
+     
     if method != "ospm":
         fig = plt.figure(figsize=(5.76, 5.76))
         ax = fig.add_subplot(111)
@@ -140,9 +171,13 @@ labels = []
 dataToPlot = []
 for method in methods:
     label = methodNames[method]
-    label = label + "\n" + "RMSE:" + rmseLevels[method] 
-    label = label + "\n" + "MAE:" + maeLevels[method] 
-    label = label + "\n" + "r:" + rLevels[method] 
+    label = label + "\n" + "RMSE:" + rmseLevels[method] #+ "$\mu$gm${}^{-3}$" 
+    label = label + "\n" + "MAE:" + maeLevels[method] #+ "$\mu$gm${}^{-3}$"
+    label = label + "\n" + "R:" + rLevels[method]
+    label = label + "\n" + "FAC2:" + fac2Levels[method]
+    label = label + "\n" + "NMSE:" + nmseLevels[method]
+    label = label + "\n" + "FB:" + fbLevels[method]
+    label = label + "\n" + "RS:" + rsLevels[method]
     labels.append(label)
     d = [abs(observations[method][i] - predictions[method][i]) for i in range(0, len(observations[method]))]
     dataToPlot.append(d)
@@ -150,5 +185,22 @@ ax.boxplot(dataToPlot, showfliers=False)
 ax.set_xticklabels(labels)
 plt.ylabel(r'Absolute error ($\mu$gm${}^{-3}$)')
 plt.subplots_adjust(bottom=0.2)
+plt.text(1.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(1.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(2.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(2.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(3.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(3.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(4.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(4.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(5.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(5.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(6.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(6.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(7.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(7.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(8.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(8.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
 plt.savefig(OUTPUT_DIRECTORY + "ex2_absolute_error_boxplot.png")
 plt.close()
+
