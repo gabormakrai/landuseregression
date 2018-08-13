@@ -56,7 +56,8 @@ for group in groups:
     print(str(group) + " -> " + str(len(groupData)))
 
 x = [i for i in range(0, len(dataToPlot))]
-ax.plot(x, dataToPlot)
+dataToPlot = [i[0] for i in dataToPlot]
+ax.bar(x, dataToPlot)
 ax.set_xticks(x)
 
 groups_names = [s.replace("lu", "L") for s in groups]
@@ -68,6 +69,7 @@ groups_names = [s.replace("to", "B") for s in groups_names]
 
 ax.set_xticklabels(groups_names, rotation='vertical')
 plt.ylim(10.0, 22.0)
+plt.xlim(-1, 63)
 
 plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("Data sources")
@@ -149,7 +151,8 @@ for group in groups:
     dataToPlot.append(groupData)
          
 x = [i for i in range(0, len(dataToPlot))]
-ax.plot(x, dataToPlot)
+dataToPlot = [i[0] for i in dataToPlot]
+ax.bar(x, dataToPlot)
 ax.set_xticks(x)
 
 groups_names = [s.replace("lu", "L") for s in groupNames]
