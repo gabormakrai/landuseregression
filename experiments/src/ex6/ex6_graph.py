@@ -27,7 +27,7 @@ x = [i for i in range(0, len(data))]
 ax.plot(x, data)
  
 plt.ylim(11.5, 18.0)
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.xlabel("Feature selection iterations")
  
 plt.savefig(OUTPUT_FILE)
