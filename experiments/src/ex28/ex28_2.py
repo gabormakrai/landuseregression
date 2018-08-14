@@ -119,7 +119,8 @@ for month in range(1, 13):
                         errorCombined[i] = errorCombined[i] * 5.0
                 
                 generateHeatmap(OUTPUT_DIRECTORY + stationNames[str(location)].lower() + "_" + str(week) + ".png", wData, "No2 heatmap - week " + str(week), names)
-                generateColorHeatmap(OUTPUT_DIRECTORY + stationNames[str(location)].lower() + "_" + str(week) + "c.png", wData, "No2 heatmap - week " + str(week), names)                
+                generateColorHeatmap(OUTPUT_DIRECTORY + stationNames[str(location)].lower() + "_" + str(week) + "c.png", wData, "No2 heatmap - week " + str(week), names)
+                exit()                
                              
         if weekoftheday == 8:
             weekoftheday = 1
