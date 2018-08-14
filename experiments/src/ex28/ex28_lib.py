@@ -63,14 +63,15 @@ def generateHeatmap(fileName, data, title, stationNames):
         draw.rectangle((800,700 + 2 * i,850,700+2 * (i+1)),colorFromLevel(i),None)
         
     draw.rectangle((800,200,850,600), None, (128,128,128))
-    draw.text((780,160), "obs/pred 0 ug/m3", font=fnt, fill=(0,0,0))
-    draw.text((770,620), "200 ug/m3", font=fnt, fill=(0,0,0))
-    draw.text((870,390), "100 ug/m3", font=fnt, fill=(0,0,0))
+    draw.text((780,160), "obs/pred 0 " + u"\u00B5" + "gm", font=fnt, fill=(0,0,0))
+    draw.text((950,154), "-3", font=fnt, fill=(0,0,0))
+    draw.text((770,620), "200 " + u"\u00B5" + "gm", font=fnt, fill=(0,0,0))
+    draw.text((870,390), "100 " + u"\u00B5" + "gm", font=fnt, fill=(0,0,0))
      
     draw.rectangle((800,700,850,1100), None, (128,128,128))
-    draw.text((780,660), "error 0 ug/m3", font=fnt, fill=(0,0,0))
-    draw.text((770,1120), "40 ug/m3", font=fnt, fill=(0,0,0))
-    draw.text((870,890), "20 ug/m3", font=fnt, fill=(0,0,0))
+    draw.text((780,660), "error 0 " + u"\u00B5" + "gm", font=fnt, fill=(0,0,0))
+    draw.text((770,1120), "40 " + u"\u00B5" + "gm", font=fnt, fill=(0,0,0))
+    draw.text((870,890), "20 " + u"\u00B5" + "gm", font=fnt, fill=(0,0,0))
     
     del draw
     
@@ -102,12 +103,12 @@ def generateColorHeatmap(fileName, data, title, stationNames):
         draw.rectangle((800,700 + 2 * i,850,700+2 * (i+1)),colorFromLevel2(i),None)
         
     draw.rectangle((800,200,850,600), None, (128,128,128))
-    draw.text((780,160), "obs/pred 0 ug/m3", font=fnt, fill=(0,0,0))
+    draw.text((780,160), "obs/pred 0 " + r'$\mu$gm${}^{-3}$', font=fnt, fill=(0,0,0))
     draw.text((770,620), "200 ug/m3", font=fnt, fill=(0,0,0))
     draw.text((870,390), "100 ug/m3", font=fnt, fill=(0,0,0))
     
     draw.rectangle((800,700,850,1100), None, (128,128,128))
-    draw.text((780,660), "error 0 ug/m3", font=fnt, fill=(0,0,0))
+    draw.text((780,660), "error 0 " + r'$\mu$gm${}^{-3}$', font=fnt, fill=(0,0,0))
     draw.text((770,1120), "40 ug/m3", font=fnt, fill=(0,0,0))
     draw.text((870,890), "20 ug/m3", font=fnt, fill=(0,0,0))
     
