@@ -11,6 +11,7 @@ from eval.mg import mgEval
 from eval.nmse import nmse_from_paper
 from eval.fb import fbEval
 from eval.random_scatter import evalRandomScatter
+from eval.vg import evalVG
 
 INPUT_DATA_DIRECTORY = "/experimntes/ex7/"
 OUTPUT_DIRECTORY = "/experiments/ex7/"
@@ -63,6 +64,8 @@ fac2Levels = {}
 nmseLevels = {}
 fbLevels = {}
 rsLevels = {}
+mgLevels = {}
+vgLevels = {}
     
 for method in methods:
     print("Method: " + method)
@@ -83,14 +86,22 @@ for method in methods:
     print("\tfb: " + str(fb))
     rs = evalRandomScatter(observations[method], predictions[method])
     print("\trandom_scatter: " + str(rs))
+    mg = mgEval(observations[method], predictions[method])
+    print("\tmeab bias (mg): " + str(mg))
+    vg = evalVG(observations[method], predictions[method])
+    print("\tvg: " + str(vg))
     
     rmseLevels[method] = str(rmse)[0:4]
     maeLevels[method] = str(mae)[0:4]
     rLevels[method] = str(r)[0:4]
     fac2Levels[method] = str(fac2)[0:4]
     nmseLevels[method] = str(nmse)[0:4]
-    if fb < 0.01:
-        fbLevels[method] = '0.00'
+    mgLevels[method] = str(mg)[0:4]
+    vgLevels[method] = str(vg)[0:4]
+    if abs(fb) < 0.01:
+        fbLevels[method] = "0.00"     
+    elif fb < 0.0:
+        fbLevels[method] = str(fb)[0:5]
     else:
         fbLevels[method] = str(fb)[0:4]
     if fbLevels[method] == '-0.00':
@@ -108,21 +119,22 @@ for method in methods:
     plt.xlabel(r'Observation ($\mu$gm${}^{-3}$)')
     plt.text(100, 143, "RMSE: " + rmseLevels[method])
     plt.text(127, 143, "$\mu$gm${}^{-3}$")
-    plt.text(100, 137, "R: " + rLevels[method])
-    plt.text(100, 131, "FAC2: " + fac2Levels[method])
-    plt.text(100, 125, "NMSE: " + nmseLevels[method])
+    plt.text(100, 137, "NMSE: " + nmseLevels[method])
+    plt.text(100, 131, "R: " + rLevels[method])
+    plt.text(100, 125, "FAC2: " + fac2Levels[method])
     plt.text(100, 119, "FB: " + fbLevels[method])
-    plt.text(100, 113, "RS: " + rsLevels[method])
-      
+    plt.text(100, 113, "MG: " + mgLevels[method])
+    plt.text(100, 107, "VG: " + vgLevels[method])
+       
     leg = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
-      
+       
     for lh in leg.legendHandles: 
         lh.set_alpha(1.0)
-          
+           
     plt.savefig(OUTPUT_DIRECTORY + "ex7_" + method + ".png")
     plt.close()
-   
+    
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
     for s in stations:
@@ -136,7 +148,7 @@ for method in methods:
         lh.set_alpha(1.0)
     plt.savefig(OUTPUT_DIRECTORY + "ex7_" + method + "_perstation.png")
     plt.close()
-     
+      
     if method != "ospm":
         fig = plt.figure(figsize=(5.76, 5.76))
         ax = fig.add_subplot(111)
@@ -160,11 +172,12 @@ for method in methods:
     label = methodNames[method]
     label = label + "\n" + "RMSE:" + rmseLevels[method] #+ "$\mu$gm${}^{-3}$" 
     label = label + "\n" + "MAE:" + maeLevels[method] #+ "$\mu$gm${}^{-3}$"
-    label = label + "\n" + "R:" + rLevels[method]
-    label = label + "\n" + "FAC2:" + fac2Levels[method]
     label = label + "\n" + "NMSE:" + nmseLevels[method]
+    label = label + "\n" + "R:" + rLevels[method]
     label = label + "\n" + "FB:" + fbLevels[method]
-    label = label + "\n" + "RS:" + rsLevels[method]
+    label = label + "\n" + "MG:" + mgLevels[method]
+    label = label + "\n" + "VG:" + vgLevels[method]
+    label = label + "\n" + "FAC2:" + fac2Levels[method]
     labels.append(label)
     d = [abs(observations[method][i] - predictions[method][i]) for i in range(0, len(observations[method]))]
     dataToPlot.append(d)
