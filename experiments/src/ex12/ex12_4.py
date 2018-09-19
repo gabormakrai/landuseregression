@@ -71,7 +71,7 @@ def graph(fileName, X, xLabel, names, stationName, data_group_code, day_string):
     
     ax = fig.add_subplot(111)
     ax.plot(index, X[0], '-', label=names[0], linewidth=1, color=colors[0])
-    ax.set_ylabel("Observation @ " + stationName + " (ug/m3)", color=colors[0])
+    ax.set_ylabel("Observation @ " + stationName + r' ($\mu$gm${}^{-3}$)', color=colors[0])
     ax.set_xlabel("Hour of the day (" + day_string + ")")
     ax.yaxis.label.set_color(colors[0])
     ax.tick_params(axis='y', colors=colors[0])
@@ -80,7 +80,7 @@ def graph(fileName, X, xLabel, names, stationName, data_group_code, day_string):
     if data_group_code == "td":
         for i in range(1, len(X)):
             X[i] = [X[i][j] / 1000.0 for j in range(0, len(X[i]))]
-        names = [n + " (10^3)" for n in names]
+        names = [n + r'$ (10^{3})$' for n in names]
         
     for i in range(1, len(X)):
         print(str(len(X[i])))
