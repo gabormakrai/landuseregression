@@ -32,7 +32,7 @@ ax1 = fig.add_subplot(111)
 
 l1, = ax1.plot(steps, rmse_TW, 'b-')
 l2, = ax1.plot(steps, rmse_TWA, 'g-')
-l3, = ax1.plot(steps, rmses, 'r-', marker='o', linestyle='None')
+l3, = ax1.plot(steps, rmses, 'r-', marker='o', linestyle='--')
 
 ax1.set_xlabel('Classification optimization steps')
 ax1.set_ylabel(r'RMSE ($\mu$gm${}^{-3}$)', color='black')
@@ -40,7 +40,7 @@ ax1.tick_params('y', colors='black')
 
 ax2 = ax1.twinx()
 s2 = steps
-l4, = ax2.plot(steps, accuracies, 'y-', marker='o', linestyle='None')
+l4, = ax2.plot(steps, accuracies, 'y-', marker='o', linestyle='--')
 ax2.set_ylabel('Accuracy', color='y')
 ax2.tick_params('y', colors='y')
 
