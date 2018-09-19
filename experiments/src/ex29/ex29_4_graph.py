@@ -51,7 +51,7 @@ for n in range(50,101):
         ax.plot(x, data1, color=colors[n-50])
 
 plt.xlabel("min_leaf")
-plt.ylabel("RMSE (ug/m3)")
+plt.ylabel(r'RMSE ($\mu$gm${}^{-3}$)')
 plt.legend()
 
 plt.savefig(OUTPUT_FILE)

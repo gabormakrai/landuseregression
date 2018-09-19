@@ -61,7 +61,7 @@ for s in all_station2:
 ax.boxplot(dataToPlot, showfliers=False)
 ax.set_xticklabels(stationNames, rotation='vertical')
 
-plt.ylabel("Concentration levels (ug/m3)")
+plt.ylabel(r'Concentration levels ($\mu$gm${}^{-3}$)')
 plt.ylim(-5.0, 300.0)
 
 fig.subplots_adjust(right=0.97, left=0.06, bottom=0.15, top=0.95)

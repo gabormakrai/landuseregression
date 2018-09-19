@@ -6,6 +6,8 @@ def doLineChart(fileName, title, xAxis, yAxis, data, names):
     
     colors = []
     
+    updated_names = [str(int(float(name))) for name in names]
+    
     for i in range(0, 256):
         c = hex(i).split('x')[-1]
         if len(c) == 1:
@@ -26,13 +28,14 @@ def doLineChart(fileName, title, xAxis, yAxis, data, names):
     ax = fig.add_subplot(111)
         
     for i in range(0, len(data)):
-        ax.plot(index, data[i], '-', color=colors[i*14])
+        ax.plot(index, data[i], 'o', color=colors[i*14], linestyle='--', label="Trained on " + updated_names[i])
     
     ax.set_xticks(np.arange(len(names)))
-    ax.set_xticklabels([str(int(float(name))) for name in names])
+    ax.set_xticklabels(updated_names)
      
     plt.xlabel(xAxis)
     plt.ylabel(yAxis)
+    plt.legend(loc='right', bbox_to_anchor=(1.12, 0.5))
     plt.margins(0.04, 0.04)
     
     plt.savefig(fileName)
@@ -89,7 +92,7 @@ def doOne(inputFile, outputFile):
         outputFile, 
         "Prediction accuracy of models trained on 1 station data", 
         "Test Station", 
-        "RMSE (ug/m3)", 
+        r'RMSE ($\mu$gm${}^{-3}$)', 
         dataToPlot, 
         stations)
 

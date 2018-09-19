@@ -41,7 +41,7 @@ ax.set_xticklabels(station_names, rotation='vertical')
  
 fig.subplots_adjust(right=0.95, left=0.075, bottom=0.15, top=0.95)
  
-plt.ylabel("Concentration levels (ug/m3)")
+plt.ylabel(r'Concentration levels ($\mu$gm${}^{-3}$)')
 plt.ylim(-5.0, 175.0)
  
 plt.savefig(OUTPUT_FILE)
