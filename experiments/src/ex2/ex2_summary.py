@@ -11,6 +11,7 @@ from eval.mg import mgEval
 from eval.nmse import nmse_from_paper
 from eval.fb import fbEval
 from eval.random_scatter import evalRandomScatter
+from eval.vg import evalVG
 
 INPUT_DATA_DIRECTORY = "/experimntes/ex2/"
 OUTPUT_DIRECTORY = "/experiments/ex2/"
@@ -72,6 +73,8 @@ fac2Levels = {}
 nmseLevels = {}
 fbLevels = {}
 rsLevels = {}
+mgLevels = {}
+vgLevels = {}
     
 for method in methods:
     print("Method: " + method)
@@ -92,12 +95,18 @@ for method in methods:
     print("\tfb: " + str(fb))
     rs = evalRandomScatter(observations[method], predictions[method])
     print("\trandom_scatter: " + str(rs))
+    mg = mgEval(observations[method], predictions[method])
+    print("\tmeab bias (mg): " + str(mg))
+    vg = evalVG(observations[method], predictions[method])
+    print("\tvg: " + str(vg))
     
     rmseLevels[method] = str(rmse)[0:4]
     maeLevels[method] = str(mae)[0:4]
     rLevels[method] = str(r)[0:4]
     fac2Levels[method] = str(fac2)[0:4]
     nmseLevels[method] = str(nmse)[0:4]
+    mgLevels[method] = str(mg)[0:4]
+    vgLevels[method] = str(vg)[0:4]    
     if fb < 0.0:
         fbLevels[method] = str(fb)[0:5]
     else:
@@ -117,21 +126,22 @@ for method in methods:
     plt.xlabel(r'Observation ($\mu$gm${}^{-3}$)')
     plt.text(100, 143, "RMSE: " + rmseLevels[method])
     plt.text(127, 143, "$\mu$gm${}^{-3}$")
-    plt.text(100, 137, "R: " + rLevels[method])
-    plt.text(100, 131, "FAC2: " + fac2Levels[method])
-    plt.text(100, 125, "NMSE: " + nmseLevels[method])
+    plt.text(100, 137, "NMSE: " + nmseLevels[method])
+    plt.text(100, 131, "R: " + rLevels[method])
+    plt.text(100, 125, "FAC2: " + fac2Levels[method])
     plt.text(100, 119, "FB: " + fbLevels[method])
-    plt.text(100, 113, "RS: " + rsLevels[method])
-     
+    plt.text(100, 113, "MG: " + mgLevels[method])
+    plt.text(100, 107, "VG: " + vgLevels[method])
+      
     leg = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
            ncol=2, mode="expand", borderaxespad=0.)
-     
+      
     for lh in leg.legendHandles: 
         lh.set_alpha(1.0)
-         
+          
     plt.savefig(OUTPUT_DIRECTORY + "ex2_" + method + ".png")
     plt.close()
-     
+      
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
     for s in stations:
@@ -147,7 +157,7 @@ for method in methods:
         lh.set_alpha(1.0)
     plt.savefig(OUTPUT_DIRECTORY + "ex2_" + method + "_perstation.png")
     plt.close()
-     
+      
     if method != "ospm":
         fig = plt.figure(figsize=(5.76, 5.76))
         ax = fig.add_subplot(111)
@@ -164,7 +174,7 @@ for method in methods:
             lh.set_alpha(1.0)
         plt.savefig(OUTPUT_DIRECTORY + "ex2_" + method + "_vs_ospm.png")
         plt.close()
-
+        
 fig = plt.figure(figsize=(13.0, 8.0))
 ax = fig.add_subplot(111)
 labels = []
@@ -173,34 +183,35 @@ for method in methods:
     label = methodNames[method]
     label = label + "\n" + "RMSE:" + rmseLevels[method] #+ "$\mu$gm${}^{-3}$" 
     label = label + "\n" + "MAE:" + maeLevels[method] #+ "$\mu$gm${}^{-3}$"
-    label = label + "\n" + "R:" + rLevels[method]
-    label = label + "\n" + "FAC2:" + fac2Levels[method]
     label = label + "\n" + "NMSE:" + nmseLevels[method]
+    label = label + "\n" + "R:" + rLevels[method]
     label = label + "\n" + "FB:" + fbLevels[method]
-    label = label + "\n" + "RS:" + rsLevels[method]
+    label = label + "\n" + "MG:" + mgLevels[method]
+    label = label + "\n" + "VG:" + vgLevels[method]
+    label = label + "\n" + "FAC2:" + fac2Levels[method]
     labels.append(label)
     d = [abs(observations[method][i] - predictions[method][i]) for i in range(0, len(observations[method]))]
     dataToPlot.append(d)
 ax.boxplot(dataToPlot, showfliers=False)
 ax.set_xticklabels(labels)
 plt.ylabel(r'Absolute error ($\mu$gm${}^{-3}$)')
-plt.subplots_adjust(bottom=0.2)
-plt.text(1.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(1.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(2.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(2.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(3.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(3.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(4.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(4.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(5.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(5.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(6.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(6.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(7.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(7.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(8.3, -8.5, "$\mu$gm${}^{-3}$", fontsize=8)
-plt.text(8.26, -10.35, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.subplots_adjust(bottom=0.25)
+plt.text(1.3, -9.0, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(1.26, -10.85, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(2.3, -9.0, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(2.26, -10.85, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(3.3, -9.0, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(3.26, -10.85, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(4.3, -9.0, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(4.26, -10.85, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(5.3, -9.0, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(5.26, -10.85, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(6.3, -9.0, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(6.26, -10.85, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(7.3, -9.0, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(7.26, -10.85, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(8.3, -9.0, "$\mu$gm${}^{-3}$", fontsize=8)
+plt.text(8.26, -10.85, "$\mu$gm${}^{-3}$", fontsize=8)
 plt.savefig(OUTPUT_DIRECTORY + "ex2_absolute_error_boxplot.png")
 plt.close()
 
