@@ -4,7 +4,7 @@ def mgEval(targetData, predictionData):
 
     ln_obs = 0.0
     for i in range(0, len(targetData)):
-        if targetData[i] == 0.0:
+        if targetData[i] == 0.0 or targetData[i] < 0.0:
             ln_obs = ln_obs + math.log(0.001)
         else:
             ln_obs = ln_obs + math.log(targetData[i])
