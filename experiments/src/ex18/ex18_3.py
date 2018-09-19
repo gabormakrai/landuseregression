@@ -64,8 +64,8 @@ for i in range(0, len(dataTW["prediction"])):
     d.append(aeWA-aeTWA)
 data.append(d)
 
-doBoxplot(OUTPUT_DIRECTORY + "ex18_error_boxplot.png", "Absolute error boxplot", "Absolute error (ug/m3)", True, data, names)
-doBoxplot(OUTPUT_DIRECTORY + "ex18_error_boxplot2.png", "Absolute error boxplot", "Absolute error (ug/m3)", False, data, names)
+doBoxplot(OUTPUT_DIRECTORY + "ex18_error_boxplot.png", "Absolute error boxplot", r'Absolute error ($\mu$gm${}^{-3}$)', True, data, names)
+doBoxplot(OUTPUT_DIRECTORY + "ex18_error_boxplot2.png", "Absolute error boxplot", r'Absolute error ($\mu$gm${}^{-3}$)', False, data, names)
 
 print("check data...")
 
@@ -130,5 +130,5 @@ names.append("WA\nafternoon")
 
 data = [aeTW1, aeTWA1, aeWA1, aeTW2, aeTWA2, aeWA2]
 
-doBoxplot(OUTPUT_DIRECTORY + "ex18_error_boxplot3.png", "Absolute error boxplot", "Absolute error (ug/m3)", True, data, names)
-doBoxplot(OUTPUT_DIRECTORY + "ex18_error_boxplot4.png", "Absolute error boxplot", "Absolute error (ug/m3)", False, data, names)
+doBoxplot(OUTPUT_DIRECTORY + "ex18_error_boxplot3.png", "Absolute error boxplot", r'Absolute error ($\mu$gm${}^{-3}$)', True, data, names)
+doBoxplot(OUTPUT_DIRECTORY + "ex18_error_boxplot4.png", "Absolute error boxplot", r'Absolute error ($\mu$gm${}^{-3}$)', False, data, names)

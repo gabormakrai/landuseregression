@@ -88,8 +88,7 @@ for m in models:
     for l in locations:
         print(str(l) + " / " + stationNames[str(l)] + " -> " + str(errors[l]))    
 
-plotArray(OUTPUT_DIRECTORY + "ae.png", "Absolute error plot", "Predictions", "Prediction error (ug/m3)", ["T+W", "T+W+A", "All"], [eData["tw"], eData["twa"], eData["all"]])
-
+plotArray(OUTPUT_DIRECTORY + "ae.png", "Absolute error plot", "Predictions", r'Prediction error ($\mu$gm${}^{-3}$)', ["T+W", "T+W+A", "All"], [eData["tw"], eData["twa"], eData["all"]])
 
 print("Errors timestamps overlap...")
 
