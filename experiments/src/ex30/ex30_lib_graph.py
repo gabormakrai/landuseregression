@@ -13,7 +13,7 @@ def plot(Y, Y_pred, output_filename, Y_label, Y_pred_label):
     
     plt.xticks(index, index)
      
-    plt.ylabel(r'Pollution concentration level ($\mu$gm${}^{-3}$)')
+    plt.ylabel(r'Pollution concentration levels ($\mu$gm${}^{-3}$)')
     plt.xlabel(r'Hours of the day')
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
        mode="expand", borderaxespad=0.)
@@ -33,7 +33,7 @@ def plot2(Y, Y_pred, output_filename, Y_label, Y_pred_label):
     
     plt.xticks(index, [i / 10 for i in index])
     
-    plt.ylabel(r'Pollution concentration level ($\mu$gm${}^{-3}$)')
+    plt.ylabel(r'Pollution concentration levels ($\mu$gm${}^{-3}$)')
     plt.xlabel(r'Hours of the day')
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
        mode="expand", borderaxespad=0.)
@@ -52,7 +52,7 @@ def plot3(Y, output_filename, Y_label):
     
     plt.xticks(index, index)
      
-    plt.ylabel(r'Pollution concentration level ($\mu$gm${}^{-3}$)')
+    plt.ylabel(r'Pollution concentration levels ($\mu$gm${}^{-3}$)')
     plt.xlabel(r'Hours of the day')
     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
        mode="expand", borderaxespad=0.)
