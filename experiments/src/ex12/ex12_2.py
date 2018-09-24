@@ -5,8 +5,7 @@ OUTPUT_DIRECTORY = "/experiments/ex12/"
 
 timestamps = ["20130724", "20130827", "20130924"]
 stations = ["2.0", "3.0", "4.0", "5.0", "6.0", "7.0"]
-dataCategories = ["lu", "td", "ts", "to", "we", "ti"]
-
+dataCategories = ["we1", "we2", "we3", "ti1", "ti2", "ti3", "lu", "td1", "td2", "td3", "ts", "to"]
 timestamps = ["20130724"]
 stations = ["2.0"]
 
@@ -22,38 +21,62 @@ stationNames = {
 
 right_border = {
     "lu": 0.75,
-    "td": 0.65, 
+    "td1": 0.75, 
+    "td2": 0.75, 
+    "td3": 0.75, 
     "ts": 0.75, 
     "to": 0.75, 
-    "we": 0.7, 
-    "ti": 0.7
+    "we1": 0.75, 
+    "we2": 0.75, 
+    "we3": 0.75, 
+    "ti1": 0.75,
+    "ti2": 0.75,
+    "ti3": 0.75
 }
 
 y_axis_parameters = {
     "lu": [None, None, 1.2],
-    "td": [None, None, 1.22, 1.48],
+    "td1": [None, None],
+    "td2": [None, None],
+    "td3": [None, None],
     "ts": [None, None, 1.2],
     "to": [None, None, 1.2],
-    "we": [None, None, 1.095, 1.16, 1.235, 1.32],
-    "ti": [None, None, 1.08, 1.16, 1.25, 1.35]
+    "we1": [None, None, 1.2],
+    "we2": [None, None, 1.2],
+    "we3": [None, None],
+    "ti1": [None, None, 1.2],
+    "ti2": [None, None, 1.2],
+    "ti3": [None, None],
 }
 
 y_axis_labelpad = {
     "lu": [None, -5, 0],
-    "td": [None, 0, 3, -3],
+    "td1": [None, 0],
+    "td2": [None, 0],
+    "td3": [None, 0],
     "ts": [None, 3, 3],
     "to": [None, 2, 4],
-    "we": [None, 0, -5, -1, -5, 0],
-    "ti": [None, 0, 2, 1, 0, 0]
+    "we1": [None, 0, 0],
+    "we2": [None, 0, 0],
+    "we3": [None, 0],
+    "ti1": [None, 0, 0],
+    "ti2": [None, 0, 0],
+    "ti3": [None, 0]
 }
 
 limits = {
     "lu": [None, [-0.1, 0.5], [-0.1, 1.0]],
-    "td": [None, None, None, None],
+    "td1": [None, None],
+    "td2": [None, None],
+    "td3": [None, None],
     "ts": [None, None, [160, 200]],
     "to": [None, None, [0.0, 0.5]],
-    "we": [None, None, None, None, [-0.1, 1.2], None],
-    "ti": [None, None, [-0.1, 6.2], [-0.1, 11.1], [-0.1, 1.1], [-0.2, 1.3]]
+    "we1": [None, None, None],
+    "we2": [None, None, None],
+    "we3": [None, None],
+    "ti1": [None, None, None],
+    "ti2": [None, None, None],
+    "ti3": [None, None]
 }
  
 def make_patch_spines_invisible(ax):
@@ -67,10 +90,7 @@ def graph(fileName, X, xLabel, names, stationName, data_group_code, day_string):
     colors = ['r', 'g', 'b', 'y', 'c', 'gray']
     index = range(0, len(xLabel))
         
-    if data_group_code == "we" or data_group_code == "ti":
-        fig = plt.figure(figsize=(5.76*1.5, 5.76*1.5))
-    else:
-        fig = plt.figure(figsize=(5.76*0.8, 5.76*0.8))
+    fig = plt.figure(figsize=(5.76*0.8, 5.76*0.8))
     
     ax = fig.add_subplot(111)
     ax.plot(index, X[0], '-', label=names[0], linewidth=1, color=colors[0])
@@ -101,11 +121,7 @@ def graph(fileName, X, xLabel, names, stationName, data_group_code, day_string):
         if limits[data_group_code][i] != None: 
             ax2.set_ylim(limits[data_group_code][i][0], limits[data_group_code][i][1])   
     
-#     plt.ylim(ymin=-1)
-    if data_group_code == "we" or data_group_code == "ti":
-        fig.subplots_adjust(right=right_border[data_group_code], left=0.075)
-    else:
-        fig.subplots_adjust(right=right_border[data_group_code], left=0.12)
+    fig.subplots_adjust(right=right_border[data_group_code], left=0.12)
      
     plt.savefig(fileName)
     plt.close()    
@@ -145,21 +161,27 @@ for station in stations:
             if dc == "ts":
                 columnsToUse.append('lane_length')
                 columnsToUse.append('length')
-            if dc == "td":
+            if dc == "td1":
                 columnsToUse.append('traffic_length_car')
+            if dc == "td2":
                 columnsToUse.append('traffic_length_lgv')
+            if dc == "td3":
                 columnsToUse.append('traffic_length_hgv')
-            if dc == "we":
+            if dc == "we1":
                 columnsToUse.append('winddirection')
                 columnsToUse.append('windspeed')
+            if dc == "we2":
                 columnsToUse.append('temperature')
                 columnsToUse.append('rain')
+            if dc == "we3":
                 columnsToUse.append('pressure')
-            if dc == "ti":
+            if dc == "ti1":
                 columnsToUse.append('hour')
                 columnsToUse.append('day_of_week')
+            if dc == "ti2":
                 columnsToUse.append('month')
                 columnsToUse.append('bank_holiday')
+            if dc == "ti3":
                 columnsToUse.append('race_day')
             
             localData = []
